@@ -27,34 +27,40 @@
 
         <!-- User Menu / Login -->
         <div class="flex items-center space-x-4">
-          <!-- Messages Icon -->
-          <router-link
-            to="/messages"
-            class="relative p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
-          >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
-            <span
-              v-if="unreadCount > 0"
-              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
-            >
-              {{ unreadCount > 99 ? '99+' : unreadCount }}
-            </span>
-          </router-link>
-
           <!-- 登录/注册 或 头像 -->
           <div v-if="userStore.isAuthenticated" class="flex items-center space-x-2">
-            <!-- 发布分享按钮 -->
-            <router-link
-              to="/publish-share"
-              class="p-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-colors duration-200"
-              title="发布分享"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-            </router-link>
+            <!-- 发布按钮下拉菜单 -->
+            <div class="relative">
+              <button
+                @click="togglePublishMenu"
+                class="p-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-colors duration-200"
+                title="发布"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+              <!-- 发布下拉菜单 -->
+              <div
+                v-if="showPublishMenu"
+                class="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+              >
+                <router-link
+                  to="/launch-team"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  @click="showPublishMenu = false"
+                >
+                  发起组队
+                </router-link>
+                <router-link
+                  to="/publish-share"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  @click="showPublishMenu = false"
+                >
+                  发布分享
+                </router-link>
+              </div>
+            </div>
             
             <!-- 用户头像 -->
             <div class="relative">
@@ -63,12 +69,20 @@
                 class="flex items-center text-gray-700 hover:text-primary-600 transition-colors duration-200 rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary-500"
                 style="padding: 0;"
               >
-                <img
-                  :src="userStore.currentUser?.avatar || '/default-avatar.png'"
-                  :alt="userStore.currentUser?.username"
-                  class="w-9 h-9 rounded-xl object-cover border border-gray-200"
-                  @click.stop="goToProfile"
-                />
+                <div class="relative">
+                  <img
+                    :src="userStore.currentUser?.avatar || '/default-avatar.png'"
+                    :alt="userStore.currentUser?.username"
+                    class="w-9 h-9 rounded-xl object-cover border border-gray-200"
+                  />
+                  <!-- 未读消息红点 -->
+                  <span
+                    v-if="unreadCount > 0"
+                    class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center border border-white"
+                  >
+                    {{ unreadCount > 99 ? '99+' : unreadCount }}
+                  </span>
+                </div>
               </button>
               <!-- User Dropdown Menu -->
               <div
@@ -90,11 +104,17 @@
                   我的简历
                 </router-link>
                 <router-link
-                  to="/launch-team"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  to="/messages"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
                   @click="showUserMenu = false"
                 >
-                  发起组队
+                  <span>私信</span>
+                  <span
+                    v-if="unreadCount > 0"
+                    class="bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center"
+                  >
+                    {{ unreadCount > 99 ? '99+' : unreadCount }}
+                  </span>
                 </router-link>
                 <hr class="my-1" />
                 <button
@@ -151,29 +171,23 @@
           <div v-if="userStore.isAuthenticated" class="mt-2">
             <button
               @click="() => { goToProfile(); showMobileMenu = false }"
-              class="flex items-center w-full px-3 py-2 rounded-xl bg-gray-100 hover:bg-primary-50 text-gray-700 text-base font-medium"
+              class="flex items-center w-full px-3 py-2 rounded-xl text-gray-600 hover:text-primary-600 text-base font-medium"
             >
-              <img
-                :src="userStore.currentUser?.avatar || '/default-avatar.png'"
-                :alt="userStore.currentUser?.username"
-                class="w-8 h-8 rounded-xl object-cover mr-2 border border-gray-200"
-              />
               我的主页
             </button>
             <div class="mt-2 space-y-1">
               <router-link
-                to="/launch-team"
-                class="block px-3 py-2 text-gray-600 hover:text-primary-600 text-base font-medium"
+                to="/messages"
+                class="block px-3 py-2 text-gray-600 hover:text-primary-600 text-base font-medium flex items-center justify-between"
                 @click="showMobileMenu = false"
               >
-                发起组队
-              </router-link>
-              <router-link
-                to="/publish-share"
-                class="block px-3 py-2 text-gray-600 hover:text-primary-600 text-base font-medium"
-                @click="showMobileMenu = false"
-              >
-                发布分享
+                <span>私信</span>
+                <span
+                  v-if="unreadCount > 0"
+                  class="bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center"
+                >
+                  {{ unreadCount > 99 ? '99+' : unreadCount }}
+                </span>
               </router-link>
             </div>
           </div>
@@ -210,12 +224,12 @@ const userStore = useUserStore()
 
 const showUserMenu = ref(false)
 const showMobileMenu = ref(false)
+const showPublishMenu = ref(false)
 const unreadCount = ref(0)
 
 const navItems = [
   { name: '首页', path: '/' },
   { name: '组队大厅', path: '/team-hall' },
-  { name: '发起组队', path: '/launch-team' },
 ]
 
 const isActive = (path: string) => {
@@ -229,6 +243,10 @@ const toggleUserMenu = (e?: Event) => {
 
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value
+}
+
+const togglePublishMenu = () => {
+  showPublishMenu.value = !showPublishMenu.value
 }
 
 const goToProfile = () => {
@@ -250,16 +268,27 @@ const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement
   if (!target.closest('.relative')) {
     showUserMenu.value = false
+    showPublishMenu.value = false
+  }
+}
+
+// ESC键关闭下拉框
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    showUserMenu.value = false
+    showPublishMenu.value = false
   }
 }
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  document.addEventListener('keydown', handleKeydown)
   // 这里应该获取未读消息数量
   unreadCount.value = 3 // 模拟数据
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('keydown', handleKeydown)
 })
 </script> 

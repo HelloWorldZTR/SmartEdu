@@ -117,7 +117,7 @@ export interface Share {
   author: User
   content: string
   techStack: string[]
-  category: 'AI' | 'CS' | 'EE'
+  category: Category
   publishedAt: string
 }
 

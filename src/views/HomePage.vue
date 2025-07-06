@@ -29,9 +29,9 @@
           />
           
           <!-- 内容列表 -->
-          <div class="space-y-4">
+          <div class="space-y-6">
             <!-- 比赛列表 -->
-            <div v-if="activeTab === 'competitions'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div v-if="currentCategoryType === 'competitions'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <CompetitionCard
                 v-for="competition in competitions"
                 :key="competition.id"
@@ -40,7 +40,7 @@
             </div>
             
             <!-- 项目列表 -->
-            <div v-if="activeTab === 'projects'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div v-if="currentCategoryType === 'projects'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <ProjectCard
                 v-for="project in projects"
                 :key="project.id"
@@ -48,13 +48,18 @@
               />
             </div>
             
-            <!-- 分享列表 -->
-            <div v-if="currentCategoryType === 'shares'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ShareCard
-                v-for="share in filteredShares"
-                :key="share.id"
-                :share="share"
-              />
+            <!-- 分享新闻流 - 始终显示 -->
+            <div class="space-y-4">
+              <h3 class="text-xl font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                最新分享
+              </h3>
+              <div class="space-y-4">
+                <ShareCard
+                  v-for="share in shares"
+                  :key="share.id"
+                  :share="share"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -179,45 +184,38 @@ const currentCategoryType = computed(() => {
   return currentCategory?.type || 'competitions'
 })
 
-// 根据当前选中的标签过滤分享内容
-const filteredShares = computed(() => {
-  const currentCategory = categories.value.find(cat => cat.id === activeTab.value)
-  if (currentCategory && currentCategory.type === 'shares') {
-    return shares.value.filter(share => share.category === activeTab.value)
-  }
-  return []
-})
-
 // 获取分类数据
 const fetchCategories = async () => {
   try {
     const response = await categoryApi.getActiveCategories()
-    categories.value = response.sort((a: any, b: any) => a.order - b.order)
     
-    // 如果没有分类数据，设置默认分类
-    if (categories.value.length === 0) {
-      categories.value = [
-        { id: 'competitions', name: '比赛', type: 'competitions', order: 1, isActive: true },
-        { id: 'projects', name: '项目', type: 'projects', order: 2, isActive: true },
-        { id: 'AI', name: 'AI', type: 'shares', order: 3, isActive: true },
-        { id: 'CS', name: 'CS', type: 'shares', order: 4, isActive: true },
-        { id: 'EE', name: 'EE', type: 'shares', order: 5, isActive: true }
-      ]
+    // 确保response是数组
+    if (Array.isArray(response)) {
+      categories.value = response
+    } else if (response && typeof response === 'object' && 'results' in response && Array.isArray((response as any).results)) {
+      // 如果response是分页响应格式
+      categories.value = (response as any).results
+    } else {
+      // 如果response不是数组，设置为空数组
+      console.warn('Categories response is not an array:', response)
+      categories.value = []
     }
     
+    for (const category of categories.value) {
+      category.id = String(category.id) //Fix this stupid bug
+    }
+    console.log(categories.value)
+
     // 设置默认选中的标签
     if (categories.value.length > 0) {
-      activeTab.value = categories.value[0].id
+      activeTab.value = String(categories.value[0].id)
     }
   } catch (error) {
     console.error('Failed to fetch categories:', error)
     // 设置默认分类作为后备
     categories.value = [
       { id: 'competitions', name: '比赛', type: 'competitions', order: 1, isActive: true },
-      { id: 'projects', name: '项目', type: 'projects', order: 2, isActive: true },
-      { id: 'AI', name: 'AI', type: 'shares', order: 3, isActive: true },
-      { id: 'CS', name: 'CS', type: 'shares', order: 4, isActive: true },
-      { id: 'EE', name: 'EE', type: 'shares', order: 5, isActive: true }
+      { id: 'projects', name: '项目', type: 'projects', order: 2, isActive: true }
     ]
     // 确保设置默认选中的标签
     activeTab.value = 'competitions'
@@ -259,8 +257,18 @@ const fetchBanners = async () => {
 const fetchCompetitions = async () => {
   try {
     const response = await homeApi.getCompetitions({ limit: 10 })
-    // 处理分页响应格式
-    const competitionData = response?.results || []
+    
+    // 确保response格式正确
+    let competitionData = []
+    if (Array.isArray(response)) {
+      competitionData = response
+    } else if (response && typeof response === 'object' && 'results' in response && Array.isArray((response as any).results)) {
+      competitionData = (response as any).results
+    } else {
+      console.warn('Competitions response format is unexpected:', response)
+      competitionData = []
+    }
+    
     competitions.value = competitionData
   } catch (error) {
     console.error('Failed to fetch competitions:', error)
@@ -290,8 +298,18 @@ const fetchCompetitions = async () => {
 const fetchProjects = async () => {
   try {
     const response = await homeApi.getProjects({ limit: 10, status: 'recruiting' })
-    // 处理分页响应格式
-    const projectData = response?.results || []
+    
+    // 确保response格式正确
+    let projectData = []
+    if (Array.isArray(response)) {
+      projectData = response
+    } else if (response && typeof response === 'object' && 'results' in response && Array.isArray((response as any).results)) {
+      projectData = (response as any).results
+    } else {
+      console.warn('Projects response format is unexpected:', response)
+      projectData = []
+    }
+    
     projects.value = projectData
   } catch (error) {
     console.error('Failed to fetch projects:', error)
@@ -328,9 +346,21 @@ const fetchProjects = async () => {
 const fetchShares = async () => {
   try {
     const response = await homeApi.getShares({ limit: 20 })
-    // 处理分页响应格式
-    const shareData = response?.results || []
+    
+    // 确保response格式正确
+    let shareData = []
+    if (Array.isArray(response)) {
+      shareData = response
+    } else if (response && typeof response === 'object' && 'results' in response && Array.isArray((response as any).results)) {
+      shareData = (response as any).results
+    } else {
+      console.warn('Shares response format is unexpected:', response)
+      shareData = []
+    }
+    
     shares.value = shareData
+
+    // console.log(shares.value)
   } catch (error) {
     console.error('Failed to fetch shares:', error)
     // 设置默认分享数据作为后备
@@ -352,7 +382,7 @@ const fetchShares = async () => {
         },
         content: '分享Vue3和TypeScript的使用经验...',
         techStack: ['Vue3', 'TypeScript', 'Vite'],
-        category: 'CS',
+        category: { id: 'CS', name: 'CS', type: 'shares', order: 4, isActive: true },
         publishedAt: '2024-01-10'
       },
       {
@@ -372,7 +402,7 @@ const fetchShares = async () => {
         },
         content: '从零开始学习机器学习的基础知识...',
         techStack: ['Python', 'TensorFlow', 'Scikit-learn'],
-        category: 'AI',
+        category: { id: 'AI', name: 'AI', type: 'shares', order: 3, isActive: true },
         publishedAt: '2024-01-12'
       }
     ]
@@ -383,8 +413,18 @@ const fetchShares = async () => {
 const fetchAnnouncements = async () => {
   try {
     const response = await homeApi.getAnnouncements({ limit: 5 })
-    // 处理分页响应格式
-    const announcementData = response?.results || []
+    
+    // 确保response格式正确
+    let announcementData = []
+    if (Array.isArray(response)) {
+      announcementData = response
+    } else if (response && typeof response === 'object' && 'results' in response && Array.isArray((response as any).results)) {
+      announcementData = (response as any).results
+    } else {
+      console.warn('Announcements response format is unexpected:', response)
+      announcementData = []
+    }
+    
     announcements.value = announcementData
   } catch (error) {
     console.error('Failed to fetch announcements:', error)
@@ -406,8 +446,18 @@ const fetchAnnouncements = async () => {
 const fetchHotTags = async () => {
   try {
     const response = await homeApi.getHotTags()
-    // 处理分页响应格式，从对象数组中提取name字段
-    const tagData = response?.results || []
+    
+    // 确保response格式正确
+    let tagData = []
+    if (Array.isArray(response)) {
+      tagData = response
+    } else if (response && typeof response === 'object' && 'results' in response && Array.isArray((response as any).results)) {
+      tagData = (response as any).results
+    } else {
+      console.warn('Hot tags response format is unexpected:', response)
+      tagData = []
+    }
+    
     hotTags.value = tagData.map((tag: any) => `#${tag.name}`)
   } catch (error) {
     console.error('Failed to fetch hot tags:', error)
@@ -420,8 +470,18 @@ const fetchHotTags = async () => {
 const fetchHotTopics = async () => {
   try {
     const response = await homeApi.getHotTopics()
-    // 处理分页响应格式
-    const topicData = response?.results || []
+    
+    // 确保response格式正确
+    let topicData = []
+    if (Array.isArray(response)) {
+      topicData = response
+    } else if (response && typeof response === 'object' && 'results' in response && Array.isArray((response as any).results)) {
+      topicData = (response as any).results
+    } else {
+      console.warn('Hot topics response format is unexpected:', response)
+      topicData = []
+    }
+    
     hotTopics.value = topicData
   } catch (error) {
     console.error('Failed to fetch hot topics:', error)
@@ -458,11 +518,11 @@ const fetchAllData = async () => {
   try {
     // 使用 Promise.allSettled 确保所有请求都能完成，即使部分失败
     const results = await Promise.allSettled([
-      fetchCategories(),
       fetchBanners(),
       fetchCompetitions(),
       fetchProjects(),
       fetchShares(),
+      fetchCategories(),
       fetchAnnouncements(),
       fetchHotTags(),
       fetchHotTopics(), // 新增热门话题

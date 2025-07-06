@@ -18,8 +18,16 @@ export const useUserStore = defineStore('user', () => {
     try {
       isLoading.value = true
       const response = await userApi.login(email, password)
-      currentUser.value = response.data.user
+      
+      // 保存JWT token - response现在是直接的token对象
+      localStorage.setItem('token', response.access)
+      localStorage.setItem('refreshToken', response.refresh)
+      
+      // 获取用户信息
+      const userResponse = await userApi.getCurrentUser()
+      currentUser.value = userResponse
       isAuthenticated.value = true
+      
       return response
     } catch (error) {
       throw error
@@ -34,6 +42,9 @@ export const useUserStore = defineStore('user', () => {
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
+      // 清除token和用户信息
+      localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
       currentUser.value = null
       isAuthenticated.value = false
     }
@@ -49,8 +60,12 @@ export const useUserStore = defineStore('user', () => {
     try {
       isLoading.value = true
       const response = await userApi.register(userData)
-      currentUser.value = response.data.user
+      
+      // 注册成功后，用户需要登录
+      // 这里可以选择自动登录或者跳转到登录页
+      currentUser.value = response.data
       isAuthenticated.value = true
+      
       return response
     } catch (error) {
       throw error
@@ -76,7 +91,7 @@ export const useUserStore = defineStore('user', () => {
     try {
       isLoading.value = true
       const response = await userApi.getCurrentUser()
-      currentUser.value = response.data
+      currentUser.value = response
       isAuthenticated.value = true
       return response
     } catch (error) {

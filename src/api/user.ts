@@ -1,10 +1,10 @@
 import { apiClient } from './index'
-import type { User, Resume } from '@/types'
+import type { User, Resume, JWTResponse } from '@/types'
 
 export const userApi = {
   // 用户认证
   login: (email: string, password: string) =>
-    apiClient.post<{ user: User; token: string }>('/auth/login', {
+    apiClient.postRaw<JWTResponse>('/auth/login', {
       email,
       password,
     }),
@@ -16,7 +16,7 @@ export const userApi = {
     school: string
     department: string
   }) =>
-    apiClient.post<{ user: User; token: string }>('/auth/register', userData),
+    apiClient.post<User>('/auth/register', userData),
 
   logout: () => apiClient.post('/auth/logout'),
 

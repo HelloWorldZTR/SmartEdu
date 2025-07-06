@@ -149,6 +149,12 @@ export interface ApiResponse<T> {
   message?: string
 }
 
+// JWT Token响应类型
+export interface JWTResponse {
+  access: string
+  refresh: string
+}
+
 export interface PaginatedResponse<T> {
   count: number
   next: string | null

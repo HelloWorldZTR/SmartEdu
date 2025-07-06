@@ -62,6 +62,10 @@ export const apiClient = {
   post: <T>(url: string, data?: any): Promise<ApiResponse<T>> =>
     api.post(url, data).then(res => res.data),
     
+  // 用于JWT token等直接返回数据的API
+  postRaw: <T>(url: string, data?: any): Promise<T> =>
+    api.post(url, data).then(res => res.data),
+    
   put: <T>(url: string, data?: any): Promise<ApiResponse<T>> =>
     api.put(url, data).then(res => res.data),
     

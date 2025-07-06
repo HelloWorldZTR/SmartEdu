@@ -1,0 +1,128 @@
+HomePage:
+  description: 展示平台最新动态，包括比赛项目、创新实践、经验分享
+  components:
+    - TopNavBar:
+        items: [首页, 组队大厅, 我的, 发起组队, 消息中心]
+    - CarouselBanner:
+        content: [热门比赛海报, 招募中项目宣传图]
+    - CategoryTabs:
+        description: 类似B站首页，分栏展示不同类型内容
+        tabs:
+          - 比赛:
+              items:
+                - CompetitionCard:
+                    fields: [标题, 举办方, 截止时间, 标签]
+          - 项目:
+              items:
+                - ProjectCard:
+                    fields: [标题, 所属学校, 发起人, 标签]
+          - AI:
+              items:
+                - ShareCard:
+                    fields: [标题, 作者, 技术栈, 发布时间]
+          - CS:
+              items:
+                - ShareCard:
+                    fields: [标题, 作者, 技术栈, 发布时间]
+          - EE:
+              items:
+                - ShareCard:
+                    fields: [标题, 作者, 技术栈, 发布时间]
+    - Sidebar:
+        sections:
+          - SearchBar
+          - HashtagFilter:
+              tags: [#蓝桥杯, #互联网+, #数模竞赛, ...]
+          - NotificationBar:
+              items: [系统公告, 热门话题推送]
+
+TeamHallPage:
+  description: 浏览当前公开招募信息，按岗位/标签筛选
+  components:
+    - FilterBar:
+        filters: [岗位类型, 技能标签, 薪酬区间, 面向人群]
+    - TeamCardList:
+        items:
+          - TeamCard:
+              fields: [项目名, 招募岗位列表, 工资范围, 发起人学校, 标签]
+              actions: [查看详情, 收藏]
+
+TeamDetailPage:
+  description: 查看具体项目详细信息，支持投递简历和选定岗位
+  components:
+    - ProjectHeader:
+        fields: [项目名称, 发起人信息, 相关标签, 发布时间]
+    - ProjectDescription:
+        fields: [项目介绍, 技术栈, 时间安排, 合作目标]
+    - JobPostingsSection:
+        items:
+          - JobCard:
+              fields: [岗位名称, 需求人数, 技能要求, 工资方案]
+    - ApplySection:
+        components:
+          - ResumeUploader
+          - PositionSelector
+          - OptionalNoteInput
+          - SubmitButton
+    - Sidebar:
+        components:
+          - SimilarProjects
+          - 发起人其他项目推荐
+
+ProfilePage:
+  description: 用户个人主页，展示身份、经历、意向、等级积分
+  components:
+    - ProfileHeader:
+        fields: [头像, 名字, 学校院系, 简介]
+    - TagsAndPreferences:
+        fields: [意向职业, 技术标签, 擅长方向]
+    - ExperienceTimeline:
+        items:
+          - ProjectItem:
+              fields: [项目名称, 岗位, 时间, 结果, 链接]
+    - LevelAndPoints:
+        fields: [当前等级, 积分, 获取方式说明]
+    - EditProfileButton
+
+LaunchTeamPage:
+  description: 发布一个新的组队项目
+  components:
+    - ProjectBasicInfoForm:
+        fields: [项目名称, 简要介绍, 面向人群选择器 (学校/院系/全国)]
+    - JobListEditor:
+        items:
+          - JobForm:
+              fields: [岗位名称, 人数, 技能要求, 工资（可选）]
+    - HashtagSelector:
+        description: 添加与首页比赛同步的标签
+    - SubmitTeamButton
+
+MessageCenter:
+  description: 与其他用户私信沟通，系统消息展示
+  components:
+    - ChatList:
+        items: [用户会话缩略图]
+    - ChatWindow:
+        components:
+          - MessageBubble
+          - MessageInput
+          - SendButton
+    - SystemNotificationsTab:
+        items: [简历投递通知, 项目更新提醒]
+
+MyResumePage:
+  description: 用户管理和编辑自己的简历资料
+  components:
+    - ResumeEditor:
+        fields: [教育经历, 技能特长, 项目经验, 自我评价]
+    - ResumePreview
+    - OneClickApplyHistory:
+        items: [已投递项目摘要]
+
+AdminDashboard (可选):
+  description: 管理员查看平台运行状况与违规行为处理
+  components:
+    - ReportedContentList
+    - UserStatsPanel
+    - ProjectApprovalQueue
+    - SystemConfigEditor

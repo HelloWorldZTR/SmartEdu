@@ -90,12 +90,7 @@ export const useProjectStore = defineStore('project', () => {
   }) => {
     try {
       isLoading.value = true
-      console.log(projectData)
-      const response = await projectApi.createProject(projectData)
-      // post方法返回ApiResponse格式
-      const newProject = response.data
-      projects.value.unshift(newProject)
-      return newProject
+      await projectApi.createProject(projectData)
     } catch (error) {
       throw error
     } finally {

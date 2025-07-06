@@ -33,6 +33,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: '发起组队', requiresAuth: true }
   },
   {
+    path: '/publish-share',
+    name: 'PublishShare',
+    component: () => import('@/views/SharePublishPage.vue'),
+    meta: { title: '发布分享', requiresAuth: true }
+  },
+  {
     path: '/team/:id',
     name: 'TeamDetail',
     component: () => import('@/views/TeamDetailPage.vue'),

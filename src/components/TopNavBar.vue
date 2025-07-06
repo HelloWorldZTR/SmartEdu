@@ -44,52 +44,66 @@
           </router-link>
 
           <!-- 登录/注册 或 头像 -->
-          <div v-if="userStore.isAuthenticated" class="relative">
-            <button
-              @click="toggleUserMenu"
-              class="flex items-center text-gray-700 hover:text-primary-600 transition-colors duration-200 rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary-500"
-              style="padding: 0;"
+          <div v-if="userStore.isAuthenticated" class="flex items-center space-x-2">
+            <!-- 发布分享按钮 -->
+            <router-link
+              to="/publish-share"
+              class="p-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-colors duration-200"
+              title="发布分享"
             >
-              <img
-                :src="userStore.currentUser?.avatar || '/default-avatar.png'"
-                :alt="userStore.currentUser?.username"
-                class="w-9 h-9 rounded-xl object-cover border border-gray-200"
-                @click.stop="goToProfile"
-              />
-            </button>
-            <!-- User Dropdown Menu -->
-            <div
-              v-if="showUserMenu"
-              class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
-            >
-              <router-link
-                to="/profile"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                @click="showUserMenu = false"
-              >
-                个人主页
-              </router-link>
-              <router-link
-                to="/resume"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                @click="showUserMenu = false"
-              >
-                我的简历
-              </router-link>
-              <router-link
-                to="/launch-team"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                @click="showUserMenu = false"
-              >
-                发起组队
-              </router-link>
-              <hr class="my-1" />
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </router-link>
+            
+            <!-- 用户头像 -->
+            <div class="relative">
               <button
-                @click="handleLogout"
-                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                @click="toggleUserMenu"
+                class="flex items-center text-gray-700 hover:text-primary-600 transition-colors duration-200 rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary-500"
+                style="padding: 0;"
               >
-                退出登录
+                <img
+                  :src="userStore.currentUser?.avatar || '/default-avatar.png'"
+                  :alt="userStore.currentUser?.username"
+                  class="w-9 h-9 rounded-xl object-cover border border-gray-200"
+                  @click.stop="goToProfile"
+                />
               </button>
+              <!-- User Dropdown Menu -->
+              <div
+                v-if="showUserMenu"
+                class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+              >
+                <router-link
+                  to="/profile"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  @click="showUserMenu = false"
+                >
+                  个人主页
+                </router-link>
+                <router-link
+                  to="/resume"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  @click="showUserMenu = false"
+                >
+                  我的简历
+                </router-link>
+                <router-link
+                  to="/launch-team"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  @click="showUserMenu = false"
+                >
+                  发起组队
+                </router-link>
+                <hr class="my-1" />
+                <button
+                  @click="handleLogout"
+                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  退出登录
+                </button>
+              </div>
             </div>
           </div>
           <div v-else class="flex items-center space-x-2">
@@ -146,6 +160,22 @@
               />
               我的主页
             </button>
+            <div class="mt-2 space-y-1">
+              <router-link
+                to="/launch-team"
+                class="block px-3 py-2 text-gray-600 hover:text-primary-600 text-base font-medium"
+                @click="showMobileMenu = false"
+              >
+                发起组队
+              </router-link>
+              <router-link
+                to="/publish-share"
+                class="block px-3 py-2 text-gray-600 hover:text-primary-600 text-base font-medium"
+                @click="showMobileMenu = false"
+              >
+                发布分享
+              </router-link>
+            </div>
           </div>
           <div v-else class="mt-2 flex space-x-2">
             <router-link

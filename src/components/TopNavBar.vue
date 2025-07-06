@@ -25,7 +25,7 @@
           </router-link>
         </div>
 
-        <!-- User Menu -->
+        <!-- User Menu / Login -->
         <div class="flex items-center space-x-4">
           <!-- Messages Icon -->
           <router-link
@@ -43,25 +43,20 @@
             </span>
           </router-link>
 
-          <!-- User Avatar -->
+          <!-- 登录/注册 或 头像 -->
           <div v-if="userStore.isAuthenticated" class="relative">
             <button
               @click="toggleUserMenu"
-              class="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors duration-200"
+              class="flex items-center text-gray-700 hover:text-primary-600 transition-colors duration-200 rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary-500"
+              style="padding: 0;"
             >
               <img
                 :src="userStore.currentUser?.avatar || '/default-avatar.png'"
                 :alt="userStore.currentUser?.username"
-                class="w-8 h-8 rounded-full object-cover"
+                class="w-9 h-9 rounded-xl object-cover border border-gray-200"
+                @click.stop="goToProfile"
               />
-              <span class="hidden sm:block text-sm font-medium">
-                {{ userStore.currentUser?.username }}
-              </span>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
             </button>
-
             <!-- User Dropdown Menu -->
             <div
               v-if="showUserMenu"
@@ -70,18 +65,21 @@
               <router-link
                 to="/profile"
                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                @click="showUserMenu = false"
               >
                 个人主页
               </router-link>
               <router-link
                 to="/resume"
                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                @click="showUserMenu = false"
               >
                 我的简历
               </router-link>
               <router-link
                 to="/launch-team"
                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                @click="showUserMenu = false"
               >
                 发起组队
               </router-link>
@@ -94,8 +92,6 @@
               </button>
             </div>
           </div>
-
-          <!-- Login Button -->
           <div v-else class="flex items-center space-x-2">
             <router-link
               to="/login"
@@ -138,6 +134,35 @@
           >
             {{ item.name }}
           </router-link>
+          <div v-if="userStore.isAuthenticated" class="mt-2">
+            <button
+              @click="() => { goToProfile(); showMobileMenu = false }"
+              class="flex items-center w-full px-3 py-2 rounded-xl bg-gray-100 hover:bg-primary-50 text-gray-700 text-base font-medium"
+            >
+              <img
+                :src="userStore.currentUser?.avatar || '/default-avatar.png'"
+                :alt="userStore.currentUser?.username"
+                class="w-8 h-8 rounded-xl object-cover mr-2 border border-gray-200"
+              />
+              我的主页
+            </button>
+          </div>
+          <div v-else class="mt-2 flex space-x-2">
+            <router-link
+              to="/login"
+              class="flex-1 text-center text-gray-600 hover:text-primary-600 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+              @click="showMobileMenu = false"
+            >
+              登录
+            </router-link>
+            <router-link
+              to="/register"
+              class="flex-1 btn-primary text-base text-center"
+              @click="showMobileMenu = false"
+            >
+              注册
+            </router-link>
+          </div>
         </div>
       </div>
     </div>
@@ -146,10 +171,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
+const router = useRouter()
 const userStore = useUserStore()
 
 const showUserMenu = ref(false)
@@ -159,7 +185,6 @@ const unreadCount = ref(0)
 const navItems = [
   { name: '首页', path: '/' },
   { name: '组队大厅', path: '/team-hall' },
-  { name: '我的', path: '/profile' },
   { name: '发起组队', path: '/launch-team' },
 ]
 
@@ -167,12 +192,18 @@ const isActive = (path: string) => {
   return route.path === path
 }
 
-const toggleUserMenu = () => {
+const toggleUserMenu = (e?: Event) => {
+  if (e) e.stopPropagation()
   showUserMenu.value = !showUserMenu.value
 }
 
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value
+}
+
+const goToProfile = () => {
+  router.push('/profile')
+  showUserMenu.value = false
 }
 
 const handleLogout = async () => {

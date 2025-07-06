@@ -141,11 +141,11 @@ const removeGlobalErrorListeners = () => {
 // 生命周期钩子
 import { onMounted, onUnmounted } from 'vue'
 
-onMounted(() => {
-  addGlobalErrorListeners()
-})
+// onMounted(() => {
+//   addGlobalErrorListeners()
+// })
 
-onUnmounted(() => {
-  removeGlobalErrorListeners()
-})
+// onUnmounted(() => {
+//   removeGlobalErrorListeners()
+// })
 </script> 

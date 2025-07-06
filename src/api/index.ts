@@ -31,11 +31,17 @@ api.interceptors.response.use(
     return response
   },
   (error) => {
+    // 处理网络错误
+    if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
+      console.error('Network error:', error.message)
+    }
+    
     if (error.response?.status === 401) {
       // 清除token并跳转到登录页
       localStorage.removeItem('token')
       window.location.href = '/login'
     }
+    
     return Promise.reject(error)
   }
 )

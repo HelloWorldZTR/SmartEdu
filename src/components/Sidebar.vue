@@ -80,61 +80,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, withDefaults } from 'vue'
 import { useRouter } from 'vue-router'
 import { formatRelativeTime } from '@/utils/date'
+import type { Announcement } from '@/api/home'
+
+interface Props {
+  hotTags?: string[]
+  announcements?: Announcement[]
+  hotTopics?: Array<{
+    id: number
+    title: string
+    tag: string
+    count: number
+  }>
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  hotTags: () => ['#蓝桥杯', '#互联网+', '#数模竞赛', '#AI', '#Vue.js'],
+  announcements: () => [],
+  hotTopics: () => []
+})
 
 const router = useRouter()
 
 const searchQuery = ref('')
 const selectedTags = ref<string[]>([])
 
-const hashtags = [
-  '#蓝桥杯',
-  '#互联网+',
-  '#数模竞赛',
-  '#AI',
-  '#Vue.js',
-  '#Python',
-  '#机器学习',
-  '#前端开发'
-]
-
-const notifications = ref([
-  {
-    id: 1,
-    title: '平台功能更新',
-    content: '新增简历一键投递功能，提升求职效率',
-    createdAt: '2024-01-15T10:00:00Z'
-  },
-  {
-    id: 2,
-    title: '系统维护通知',
-    content: '将于今晚22:00-24:00进行系统维护',
-    createdAt: '2024-01-14T15:30:00Z'
-  }
-])
-
-const hotTopics = ref([
-  {
-    id: 1,
-    title: 'Vue3 组合式API最佳实践',
-    tag: 'Vue3',
-    count: 156
-  },
-  {
-    id: 2,
-    title: 'AI 在校园导航中的应用',
-    tag: 'AI',
-    count: 89
-  },
-  {
-    id: 3,
-    title: '大学生创业项目分享',
-    tag: '创业',
-    count: 234
-  }
-])
+const hashtags = props.hotTags
+const notifications = props.announcements
+const hotTopics = props.hotTopics
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {

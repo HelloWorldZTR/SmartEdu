@@ -14,6 +14,15 @@ export interface User {
   createdAt: string
 }
 
+// 分类相关类型
+export interface Category {
+  id: string
+  name: string
+  type: 'competitions' | 'projects' | 'shares'
+  order: number
+  isActive: boolean
+}
+
 // 项目相关类型
 export interface Project {
   id: number

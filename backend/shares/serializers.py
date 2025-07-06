@@ -10,4 +10,12 @@ class ShareSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Share
-        fields = '__all__' 
+        fields = '__all__'
+
+
+class ShareCreateSerializer(serializers.ModelSerializer):
+    """用于创建分享的序列化器，允许设置category ID"""
+    
+    class Meta:
+        model = Share
+        fields = ['title', 'content', 'category', 'tech_stack'] 

@@ -87,6 +87,13 @@ class HotTagListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
 
+class HotTopicListView(generics.ListAPIView):
+    """获取热门话题"""
+    queryset = HotTopic.objects.filter(is_active=True)
+    serializer_class = HotTopicSerializer
+    permission_classes = [permissions.AllowAny]
+
+
 class HomeStatsView(APIView):
     """获取首页统计数据"""
     permission_classes = [permissions.AllowAny]

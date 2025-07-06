@@ -56,7 +56,7 @@ api.interceptors.response.use(
 
 // 通用API方法
 export const apiClient = {
-  get: <T>(url: string, params?: any): Promise<ApiResponse<T>> =>
+  get: <T>(url: string, params?: any): Promise<T> =>
     api.get(url, { params }).then(res => res.data),
     
   post: <T>(url: string, data?: any): Promise<ApiResponse<T>> =>

@@ -146,9 +146,8 @@ export interface ApiResponse<T> {
 }
 
 export interface PaginatedResponse<T> {
-  items: T[]
-  total: number
-  page: number
-  pageSize: number
-  totalPages: number
+  count: number
+  next: string | null
+  previous: string | null
+  results: T[]
 } 

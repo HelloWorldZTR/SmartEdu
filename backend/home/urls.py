@@ -8,5 +8,6 @@ urlpatterns = [
     path('home/shares', views.HomeShareListView.as_view(), name='home-share-list'),
     path('home/announcements', views.AnnouncementListView.as_view(), name='announcement-list'),
     path('home/hot-tags', views.HotTagListView.as_view(), name='hot-tag-list'),
+    path('home/hot-topics', views.HotTopicListView.as_view(), name='hot-topic-list'),
     path('home/stats', views.HomeStatsView.as_view(), name='home-stats'),
 ] 

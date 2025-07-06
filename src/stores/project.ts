@@ -56,7 +56,7 @@ export const useProjectStore = defineStore('project', () => {
     try {
       isLoading.value = true
       const response = await projectApi.getProjects(params)
-      projects.value = response.data.items
+      projects.value = response.results || []
       return response
     } catch (error) {
       throw error
@@ -69,7 +69,7 @@ export const useProjectStore = defineStore('project', () => {
     try {
       isLoading.value = true
       const response = await projectApi.getProjectById(id)
-      currentProject.value = response.data
+      currentProject.value = response
       return response
     } catch (error) {
       throw error

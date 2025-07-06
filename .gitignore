@@ -45,3 +45,6 @@ coverage
 *.pyc
 db.sqlite3
 __pycache__
+
+# media files
+backend/media

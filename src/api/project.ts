@@ -1,5 +1,5 @@
 import { apiClient } from './index'
-import type { Project, Application, PaginatedResponse } from '@/types'
+import type { Project, Application, PaginatedResponse, ApiResponse } from '@/types'
 
 export const projectApi = {
   // 项目列表
@@ -31,11 +31,11 @@ export const projectApi = {
         currency: string
       }
     }[]
-  }) => apiClient.post<Project>('/projects', projectData),
+  }) => apiClient.post<ApiResponse<Project>>('/projects', projectData),
 
   // 更新项目
   updateProject: (id: number, projectData: Partial<Project>) =>
-    apiClient.put<Project>(`/projects/${id}`, projectData),
+    apiClient.put<ApiResponse<Project>>(`/projects/${id}`, projectData),
 
   // 删除项目
   deleteProject: (id: number) => apiClient.delete(`/projects/${id}`),

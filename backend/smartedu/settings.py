@@ -175,6 +175,32 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+# 允许媒体文件访问
+CORS_ALLOW_ALL_ORIGINS = True  # 开发环境下允许所有来源访问媒体文件
+
+# 添加CORS头
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# 允许的方法
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
 # JWT settings
 from datetime import timedelta
 SIMPLE_JWT = {

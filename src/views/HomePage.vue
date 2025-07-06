@@ -12,7 +12,14 @@
         <!-- 主要内容区域 -->
         <div class="lg:col-span-3 space-y-6">
           <!-- 轮播图 -->
-          <CarouselBanner :banners="banners" />
+          <CarouselBanner 
+            :banners="banners" 
+            :current-index="currentBannerIndex"
+            :is-autoplay="isAutoplay"
+            @banner-click="handleBannerClick"
+            @banner-change="handleBannerChange"
+            @toggle-autoplay="toggleAutoplay"
+          />
           
           <!-- 分类标签 -->
           <CategoryTabs 
@@ -57,7 +64,7 @@
           <Sidebar 
             :hot-tags="hotTags"
             :announcements="announcements"
-            :hot-topics="homeStats?.hotTopics || []"
+            :hot-topics="hotTopics"
           />
         </div>
       </div>
@@ -66,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import TopNavBar from '@/components/TopNavBar.vue'
 import CarouselBanner from '@/components/CarouselBanner.vue'
 import CategoryTabs from '@/components/CategoryTabs.vue'
@@ -83,6 +90,12 @@ const activeTab = ref('competitions')
 const categories = ref<Category[]>([])
 const isLoading = ref(false)
 
+// Banner动态更新相关状态
+const currentBannerIndex = ref(0)
+const isAutoplay = ref(true)
+const autoplayInterval = ref<number | null>(null)
+const AUTOPLAY_DURATION = 5000 // 5秒自动切换
+
 // 数据状态
 const banners = ref<Banner[]>([])
 const competitions = ref<Competition[]>([])
@@ -90,11 +103,75 @@ const projects = ref<Project[]>([])
 const shares = ref<Share[]>([])
 const announcements = ref<Announcement[]>([])
 const hotTags = ref<string[]>([])
+const hotTopics = ref<Array<{
+  id: number
+  title: string
+  tag: string
+  count: number
+}>>([])
 const homeStats = ref<any>(null)
 
 const handleTabChange = (tab: string) => {
   activeTab.value = tab
 }
+
+// Banner相关方法
+const handleBannerClick = (banner: Banner) => {
+  console.log('Banner clicked:', banner.title)
+  // 可以在这里添加点击统计或其他逻辑
+  if (banner.link) {
+    window.open(banner.link, '_blank')
+  }
+}
+
+const handleBannerChange = (index: number) => {
+  currentBannerIndex.value = index
+  // 重置自动播放计时器
+  resetAutoplayTimer()
+}
+
+const toggleAutoplay = () => {
+  isAutoplay.value = !isAutoplay.value
+  if (isAutoplay.value) {
+    startAutoplay()
+  } else {
+    stopAutoplay()
+  }
+}
+
+const startAutoplay = () => {
+  if (banners.value.length <= 1) return
+  
+  stopAutoplay() // 先清除之前的定时器
+  
+  autoplayInterval.value = window.setInterval(() => {
+    currentBannerIndex.value = (currentBannerIndex.value + 1) % banners.value.length
+  }, AUTOPLAY_DURATION)
+}
+
+const stopAutoplay = () => {
+  if (autoplayInterval.value) {
+    clearInterval(autoplayInterval.value)
+    autoplayInterval.value = null
+  }
+}
+
+const resetAutoplayTimer = () => {
+  if (isAutoplay.value) {
+    stopAutoplay()
+    startAutoplay()
+  }
+}
+
+// 监听banners变化，重新启动自动播放
+watch(banners, (newBanners) => {
+  if (newBanners.length > 0) {
+    currentBannerIndex.value = 0
+    if (isAutoplay.value) {
+      startAutoplay()
+    }
+  }
+}, { immediate: true })
 
 // 获取当前分类类型
 const currentCategoryType = computed(() => {
@@ -115,7 +192,7 @@ const filteredShares = computed(() => {
 const fetchCategories = async () => {
   try {
     const response = await categoryApi.getActiveCategories()
-    categories.value = response.data.sort((a, b) => a.order - b.order)
+    categories.value = response.sort((a: any, b: any) => a.order - b.order)
     
     // 如果没有分类数据，设置默认分类
     if (categories.value.length === 0) {
@@ -151,7 +228,9 @@ const fetchCategories = async () => {
 const fetchBanners = async () => {
   try {
     const response = await homeApi.getBanners()
-    banners.value = response.data.filter(banner => banner.isActive).sort((a, b) => a.order - b.order)
+    // 直接使用response，因为它已经是分页响应格式
+    const bannerData = response?.results || []
+    banners.value = bannerData.filter((banner: any) => banner.isActive || banner.is_active).sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
   } catch (error) {
     console.error('Failed to fetch banners:', error)
     // 设置默认轮播图作为后备
@@ -180,7 +259,9 @@ const fetchBanners = async () => {
 const fetchCompetitions = async () => {
   try {
     const response = await homeApi.getCompetitions({ limit: 10 })
-    competitions.value = response.data
+    // 处理分页响应格式
+    const competitionData = response?.results || []
+    competitions.value = competitionData
   } catch (error) {
     console.error('Failed to fetch competitions:', error)
     // 设置默认比赛数据作为后备
@@ -209,7 +290,9 @@ const fetchCompetitions = async () => {
 const fetchProjects = async () => {
   try {
     const response = await homeApi.getProjects({ limit: 10, status: 'recruiting' })
-    projects.value = response.data
+    // 处理分页响应格式
+    const projectData = response?.results || []
+    projects.value = projectData
   } catch (error) {
     console.error('Failed to fetch projects:', error)
     // 设置默认项目数据作为后备
@@ -245,7 +328,9 @@ const fetchProjects = async () => {
 const fetchShares = async () => {
   try {
     const response = await homeApi.getShares({ limit: 20 })
-    shares.value = response.data
+    // 处理分页响应格式
+    const shareData = response?.results || []
+    shares.value = shareData
   } catch (error) {
     console.error('Failed to fetch shares:', error)
     // 设置默认分享数据作为后备
@@ -298,7 +383,9 @@ const fetchShares = async () => {
 const fetchAnnouncements = async () => {
   try {
     const response = await homeApi.getAnnouncements({ limit: 5 })
-    announcements.value = response.data
+    // 处理分页响应格式
+    const announcementData = response?.results || []
+    announcements.value = announcementData
   } catch (error) {
     console.error('Failed to fetch announcements:', error)
     // 设置默认公告数据作为后备
@@ -319,7 +406,9 @@ const fetchAnnouncements = async () => {
 const fetchHotTags = async () => {
   try {
     const response = await homeApi.getHotTags()
-    hotTags.value = response.data
+    // 处理分页响应格式，从对象数组中提取name字段
+    const tagData = response?.results || []
+    hotTags.value = tagData.map((tag: any) => `#${tag.name}`)
   } catch (error) {
     console.error('Failed to fetch hot tags:', error)
     // 设置默认热门标签作为后备
@@ -327,11 +416,31 @@ const fetchHotTags = async () => {
   }
 }
 
+// 获取热门话题
+const fetchHotTopics = async () => {
+  try {
+    const response = await homeApi.getHotTopics()
+    // 处理分页响应格式
+    const topicData = response?.results || []
+    hotTopics.value = topicData
+  } catch (error) {
+    console.error('Failed to fetch hot topics:', error)
+    // 设置默认热门话题作为后备
+    hotTopics.value = [
+      { id: 1, title: 'Vue.js 2023年趋势', tag: '#Vue.js', count: 1200 },
+      { id: 2, title: 'TypeScript 最佳实践', tag: '#TypeScript', count: 900 },
+      { id: 3, title: '前端性能优化', tag: '#前端', count: 850 },
+      { id: 4, title: 'React Hooks 使用指南', tag: '#React', count: 700 },
+      { id: 5, title: 'Node.js 最佳实践', tag: '#Node.js', count: 650 }
+    ]
+  }
+}
+
 // 获取首页统计数据
 const fetchHomeStats = async () => {
   try {
     const response = await homeApi.getHomeStats()
-    homeStats.value = response.data
+    homeStats.value = response
   } catch (error) {
     console.error('Failed to fetch home stats:', error)
     // 设置默认统计数据作为后备
@@ -356,13 +465,14 @@ const fetchAllData = async () => {
       fetchShares(),
       fetchAnnouncements(),
       fetchHotTags(),
+      fetchHotTopics(), // 新增热门话题
       fetchHomeStats()
     ])
     
     // 检查哪些请求失败了
     results.forEach((result, index) => {
       if (result.status === 'rejected') {
-        const apiNames = ['categories', 'banners', 'competitions', 'projects', 'shares', 'announcements', 'hotTags', 'homeStats']
+        const apiNames = ['categories', 'banners', 'competitions', 'projects', 'shares', 'announcements', 'hotTags', 'hotTopics', 'homeStats']
         console.error(`Failed to fetch ${apiNames[index]}:`, result.reason)
       }
     })
@@ -376,5 +486,10 @@ const fetchAllData = async () => {
 onMounted(() => {
   fetchAllData()
   console.log('HomePage mounted')
+})
+
+onUnmounted(() => {
+  // 清理定时器
+  stopAutoplay()
 })
 </script> 

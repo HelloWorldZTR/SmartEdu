@@ -5,7 +5,7 @@ class Banner(models.Model):
     """轮播图模型"""
     title = models.CharField(max_length=200, verbose_name='标题')
     image = models.ImageField(upload_to='banners/', verbose_name='图片')
-    link = models.CharField(max_length=500, verbose_name='链接')
+    link = models.CharField(max_length=500, blank=True, null=True, verbose_name='链接')
     order = models.IntegerField(default=0, verbose_name='排序')
     is_active = models.BooleanField(default=True, verbose_name='是否激活')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')

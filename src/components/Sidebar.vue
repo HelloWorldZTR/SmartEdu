@@ -53,7 +53,7 @@
             {{ notification.content }}
           </p>
           <span class="text-xs text-blue-500 mt-2 block">
-            {{ formatRelativeTime(notification.createdAt) }}
+            {{ formatRelativeTime(notification.created_at || notification.createdAt || new Date()) }}
           </span>
         </div>
       </div>
@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, withDefaults } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { formatRelativeTime } from '@/utils/date'
 import type { Announcement } from '@/api/home'
@@ -107,9 +107,10 @@ const router = useRouter()
 const searchQuery = ref('')
 const selectedTags = ref<string[]>([])
 
-const hashtags = props.hotTags
-const notifications = props.announcements
-const hotTopics = props.hotTopics
+// 使用computed来确保响应式更新
+const hashtags = computed(() => props.hotTags)
+const notifications = computed(() => props.announcements)
+const hotTopics = computed(() => props.hotTopics)
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {

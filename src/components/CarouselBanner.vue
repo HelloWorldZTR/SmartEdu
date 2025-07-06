@@ -4,13 +4,17 @@
       <div
         v-for="(banner, index) in banners"
         :key="banner.id"
-        class="absolute inset-0 transition-opacity duration-500"
+        class="absolute inset-0 transition-opacity duration-500 cursor-pointer"
         :class="{ 'opacity-100': currentIndex === index, 'opacity-0': currentIndex !== index }"
+        @click="handleBannerClick(banner)"
       >
         <img
           :src="banner.image"
           :alt="banner.title"
           class="w-full h-full object-cover"
+          @error="handleImageError"
+          @load="handleImageLoad"
+          @abort="handleImageAbort"
         />
         <div class="absolute inset-0 bg-black bg-opacity-40"></div>
         <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
@@ -49,68 +53,96 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
       </svg>
     </button>
+    
+    <!-- 自动播放控制按钮 -->
+    <button
+      v-if="banners.length > 1"
+      @click="toggleAutoplay"
+      class="absolute top-4 right-4 w-8 h-8 bg-black bg-opacity-30 hover:bg-opacity-50 text-white rounded-full flex items-center justify-center transition-all duration-200"
+      :title="isAutoplay ? '暂停自动播放' : '开始自动播放'"
+    >
+      <svg v-if="isAutoplay" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" />
+      </svg>
+      <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-
-interface Banner {
-  id: number
-  title: string
-  image: string
-  description?: string
-  link?: string
-}
+import { ref, watch, computed } from 'vue'
+import type { Banner } from '@/api/home'
 
 interface Props {
   banners: Banner[]
-  autoplay?: boolean
-  interval?: number
+  currentIndex?: number
+  isAutoplay?: boolean
+}
+
+interface Emits {
+  (e: 'banner-click', banner: Banner): void
+  (e: 'banner-change', index: number): void
+  (e: 'toggle-autoplay'): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  autoplay: true,
-  interval: 5000
+  currentIndex: 0,
+  isAutoplay: true
 })
 
-const currentIndex = ref(0)
-let autoplayTimer: number | null = null
+const emit = defineEmits<Emits>()
+
+// 内部状态，用于处理外部传入的currentIndex
+const currentIndex = computed({
+  get: () => props.currentIndex,
+  set: (value: number) => {
+    emit('banner-change', value)
+  }
+})
+
+const handleBannerClick = (banner: Banner) => {
+  emit('banner-click', banner)
+}
 
 const next = () => {
-  currentIndex.value = (currentIndex.value + 1) % props.banners.length
+  if (props.banners.length > 1) {
+    const newIndex = (currentIndex.value + 1) % props.banners.length
+    currentIndex.value = newIndex
+  }
 }
 
 const previous = () => {
-  currentIndex.value = currentIndex.value === 0 
-    ? props.banners.length - 1 
-    : currentIndex.value - 1
+  if (props.banners.length > 1) {
+    const newIndex = currentIndex.value === 0 
+      ? props.banners.length - 1 
+      : currentIndex.value - 1
+    currentIndex.value = newIndex
+  }
 }
 
 const setCurrentIndex = (index: number) => {
   currentIndex.value = index
 }
 
-const startAutoplay = () => {
-  if (props.autoplay && props.banners.length > 1) {
-    autoplayTimer = window.setInterval(() => {
-      next()
-    }, props.interval)
-  }
+const toggleAutoplay = () => {
+  emit('toggle-autoplay')
 }
 
-const stopAutoplay = () => {
-  if (autoplayTimer) {
-    clearInterval(autoplayTimer)
-    autoplayTimer = null
-  }
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  console.error('Image failed to load:', img.src)
+  // 可以设置一个默认图片
+  img.src = '/placeholder-banner.jpg'
 }
 
-onMounted(() => {
-  startAutoplay()
-})
+const handleImageLoad = (event: Event) => {
+  // 图片加载成功，无需特殊处理
+}
 
-onUnmounted(() => {
-  stopAutoplay()
-})
+const handleImageAbort = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  console.warn('Image aborted loading:', img.src)
+}
 </script> 

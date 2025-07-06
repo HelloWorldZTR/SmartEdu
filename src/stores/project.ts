@@ -26,11 +26,12 @@ export const useProjectStore = defineStore('project', () => {
 
     if (filters.value.skills.length > 0) {
       filtered = filtered.filter(project =>
-        project.jobs.some(job =>
-          job.requiredSkills.some(skill =>
+        project.jobs.some(job => {
+          const skills = job.requiredSkills || job.required_skills || []
+          return skills.some(skill =>
             filters.value.skills.includes(skill)
           )
-        )
+        })
       )
     }
 
@@ -89,7 +90,7 @@ export const useProjectStore = defineStore('project', () => {
       isLoading.value = true
       const response = await projectApi.createProject(projectData)
       projects.value.unshift(response.data)
-      return response
+      return response.data
     } catch (error) {
       throw error
     } finally {
@@ -108,7 +109,7 @@ export const useProjectStore = defineStore('project', () => {
       if (currentProject.value?.id === id) {
         currentProject.value = response.data
       }
-      return response
+      return response.data
     } catch (error) {
       throw error
     } finally {
@@ -141,7 +142,7 @@ export const useProjectStore = defineStore('project', () => {
           job.applications.push(response.data)
         }
       }
-      return response
+      return response.data
     } catch (error) {
       throw error
     }

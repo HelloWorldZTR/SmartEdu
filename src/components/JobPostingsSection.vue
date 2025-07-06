@@ -14,15 +14,15 @@
           </div>
           <div class="text-right">
             <span class="text-sm text-gray-500">招{{ job.headcount }}人</span>
-            <div v-if="job.salary" class="text-sm font-medium text-green-600 mt-1">
-              {{ job.salary.min }}-{{ job.salary.max }}元
+            <div v-if="getSalaryInfo(job)" class="text-sm font-medium text-green-600 mt-1">
+              {{ getSalaryInfo(job) }}
             </div>
           </div>
         </div>
         
         <div class="flex flex-wrap gap-2 mb-3">
           <span
-            v-for="skill in job.requiredSkills"
+            v-for="skill in getSkills(job)"
             :key="skill"
             class="tag"
           >
@@ -32,7 +32,7 @@
         
         <div class="flex items-center justify-between">
           <span class="text-xs text-gray-500">
-            已有{{ job.applications.length }}人申请
+            已有{{ getApplicationsCount(job) }}人申请
           </span>
           <button
             @click="selectJob(job)"
@@ -58,5 +58,26 @@ defineProps<Props>()
 const selectJob = (job: Job) => {
   // 处理岗位选择逻辑
   console.log('Selected job:', job)
+}
+
+// 获取薪资信息的辅助函数
+const getSalaryInfo = (job: Job) => {
+  if (job.salary) {
+    return `${job.salary.min}-${job.salary.max}元`
+  }
+  if (job.salary_min !== undefined && job.salary_max !== undefined) {
+    return `${job.salary_min}-${job.salary_max}元`
+  }
+  return null
+}
+
+// 获取技能列表的辅助函数
+const getSkills = (job: Job) => {
+  return job.requiredSkills || job.required_skills || []
+}
+
+// 获取申请人数的辅助函数
+const getApplicationsCount = (job: Job) => {
+  return job.applications?.length || 0
 }
 </script> 

@@ -28,14 +28,14 @@
     <div class="flex items-center justify-between">
       <div class="flex space-x-1">
         <span
-          v-for="tag in project.tags.slice(0, 3)"
+          v-for="tag in getTagsSlice(project.tags)"
           :key="tag"
           class="tag"
         >
           {{ tag }}
         </span>
-        <span v-if="project.tags.length > 3" class="text-xs text-gray-500">
-          +{{ project.tags.length - 3 }}
+        <span v-if="getTagsCount(project.tags) > 3" class="text-xs text-gray-500">
+          +{{ getTagsCount(project.tags) - 3 }}
         </span>
       </div>
       
@@ -84,4 +84,12 @@ const statusText = computed(() => {
       return '未知'
   }
 })
+
+const getTagsSlice = (tags: any[]) => {
+  return tags.slice(0, 3)
+}
+
+const getTagsCount = (tags: any[]) => {
+  return tags.length
+}
 </script> 

@@ -43,12 +43,16 @@ export interface Job {
   title: string
   description: string
   requiredSkills: string[]
+  required_skills?: string[]
   headcount: number
   salary?: {
     min: number
     max: number
     currency: string
   }
+  salary_min?: number
+  salary_max?: number
+  salary_currency?: string
   applications: Application[]
 }
 

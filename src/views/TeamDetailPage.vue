@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import TopNavBar from '@/components/TopNavBar.vue'
 import ProjectHeader from '@/components/ProjectHeader.vue'

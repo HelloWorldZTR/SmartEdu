@@ -15,6 +15,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: '组队大厅' }
   },
   {
+    path: '/launch-team',
+    name: 'LaunchTeam',
+    component: () => import('@/views/LaunchTeamPage.vue'),
+    meta: { title: '发起组队' }
+  },
+  {
     path: '/team/:id',
     name: 'TeamDetail',
     component: () => import('@/views/TeamDetailPage.vue'),
@@ -25,12 +31,6 @@ const routes: RouteRecordRaw[] = [
     name: 'Profile',
     component: () => import('@/views/ProfilePage.vue'),
     meta: { title: '个人主页' }
-  },
-  {
-    path: '/launch-team',
-    name: 'LaunchTeam',
-    component: () => import('@/views/LaunchTeamPage.vue'),
-    meta: { title: '发起组队' }
   },
   {
     path: '/messages',

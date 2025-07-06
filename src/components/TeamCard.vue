@@ -23,7 +23,7 @@
       <h4 class="text-sm font-medium text-gray-700 mb-2">招募岗位</h4>
       <div class="space-y-2">
         <div
-          v-for="job in getJobsSlice(project.jobs)"
+          v-for="job in getJobsSlice(project.jobs || [])"
           :key="job.id"
           class="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
         >
@@ -35,8 +35,8 @@
             {{ getSalaryInfo(job) }}
           </div>
         </div>
-        <div v-if="getJobsCount(project.jobs) > 3" class="text-xs text-gray-500 text-center">
-          还有{{ getJobsCount(project.jobs) - 3 }}个岗位
+        <div v-if="getJobsCount(project.jobs || []) > 3" class="text-xs text-gray-500 text-center">
+          还有{{ getJobsCount(project.jobs || []) - 3 }}个岗位
         </div>
       </div>
     </div>
@@ -58,14 +58,14 @@
     <div class="flex items-center justify-between">
       <div class="flex space-x-1">
         <span
-          v-for="tag in getTagsSlice(project.tags)"
+          v-for="tag in getTagsSlice(project.tags || [])"
           :key="tag"
           class="tag"
         >
           {{ tag }}
         </span>
-        <span v-if="getTagsCount(project.tags) > 3" class="text-xs text-gray-500">
-          +{{ getTagsCount(project.tags) - 3 }}
+        <span v-if="getTagsCount(project.tags || []) > 3" class="text-xs text-gray-500">
+          +{{ getTagsCount(project.tags || []) - 3 }}
         </span>
       </div>
       
@@ -103,18 +103,18 @@ const getSalaryInfo = (job: any) => {
 }
 
 const getJobsSlice = (jobs: any[]) => {
-  return jobs.slice(0, 3)
+  return (jobs || []).slice(0, 3)
 }
 
 const getJobsCount = (jobs: any[]) => {
-  return jobs.length
+  return (jobs || []).length
 }
 
 const getTagsSlice = (tags: any[]) => {
-  return tags.slice(0, 3)
+  return (tags || []).slice(0, 3)
 }
 
 const getTagsCount = (tags: any[]) => {
-  return tags.length
+  return (tags || []).length
 }
 </script> 

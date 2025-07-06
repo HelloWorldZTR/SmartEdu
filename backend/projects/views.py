@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 from .models import Project, Job, Application, ProjectFavorite
-from .serializers import ProjectSerializer, JobSerializer, ApplicationSerializer, ProjectFavoriteSerializer
+from .serializers import ProjectSerializer, ProjectCreateSerializer, JobSerializer, ApplicationSerializer, ProjectFavoriteSerializer
 
 
 class ProjectListCreateView(generics.ListCreateAPIView):
@@ -16,6 +16,11 @@ class ProjectListCreateView(generics.ListCreateAPIView):
     filterset_fields = ['category', 'target_audience', 'status']
     search_fields = ['title', 'description', 'tags']
     ordering_fields = ['created_at', 'updated_at']
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return ProjectCreateSerializer
+        return ProjectSerializer
     
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)

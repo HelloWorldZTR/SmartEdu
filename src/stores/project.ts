@@ -20,13 +20,13 @@ export const useProjectStore = defineStore('project', () => {
 
     if (filters.value.category) {
       filtered = filtered.filter(project => 
-        project.tags.includes(filters.value.category)
+        (project.tags || []).includes(filters.value.category)
       )
     }
 
     if (filters.value.skills.length > 0) {
       filtered = filtered.filter(project =>
-        project.jobs.some(job => {
+        (project.jobs || []).some(job => {
           const skills = job.requiredSkills || job.required_skills || []
           return skills.some(skill =>
             filters.value.skills.includes(skill)
@@ -57,6 +57,7 @@ export const useProjectStore = defineStore('project', () => {
     try {
       isLoading.value = true
       const response = await projectApi.getProjects(params)
+      // get方法返回直接数据，不需要.response.data
       projects.value = response.results || []
       return response
     } catch (error) {
@@ -70,6 +71,7 @@ export const useProjectStore = defineStore('project', () => {
     try {
       isLoading.value = true
       const response = await projectApi.getProjectById(id)
+      // get方法返回直接数据
       currentProject.value = response
       return response
     } catch (error) {
@@ -88,9 +90,12 @@ export const useProjectStore = defineStore('project', () => {
   }) => {
     try {
       isLoading.value = true
+      console.log(projectData)
       const response = await projectApi.createProject(projectData)
-      projects.value.unshift(response.data)
-      return response.data
+      // post方法返回ApiResponse格式
+      const newProject = response.data
+      projects.value.unshift(newProject)
+      return newProject
     } catch (error) {
       throw error
     } finally {
@@ -102,14 +107,16 @@ export const useProjectStore = defineStore('project', () => {
     try {
       isLoading.value = true
       const response = await projectApi.updateProject(id, projectData)
+      // put方法返回ApiResponse格式
+      const updatedProject = response.data
       const index = projects.value.findIndex(p => p.id === id)
       if (index !== -1) {
-        projects.value[index] = response.data
+        projects.value[index] = updatedProject
       }
       if (currentProject.value?.id === id) {
-        currentProject.value = response.data
+        currentProject.value = updatedProject
       }
-      return response.data
+      return updatedProject
     } catch (error) {
       throw error
     } finally {

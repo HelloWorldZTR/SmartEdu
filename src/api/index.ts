@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { ApiResponse } from '@/types'
+import { handleApiError, navigateToError } from '@/utils/error'
 
 // 创建axios实例
 const api = axios.create({
@@ -34,12 +35,19 @@ api.interceptors.response.use(
     // 处理网络错误
     if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
       console.error('Network error:', error.message)
+      // 网络错误时跳转到错误页面
+      const errorInfo = handleApiError(error)
+      navigateToError(errorInfo)
     }
     
     if (error.response?.status === 401) {
       // 清除token并跳转到登录页
       localStorage.removeItem('token')
       window.location.href = '/login'
+    } else if (error.response?.status >= 500) {
+      // 服务器错误时跳转到错误页面
+      const errorInfo = handleApiError(error)
+      navigateToError(errorInfo)
     }
     
     return Promise.reject(error)

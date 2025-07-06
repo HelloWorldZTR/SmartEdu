@@ -15,7 +15,7 @@
 
 ## 功能特性
 
-- 🏠 **首页**: 轮播图展示、分类标签、内容推荐
+- 🏠 **首页**: 轮播图展示、动态分类标签、内容推荐
 - 👥 **组队大厅**: 项目浏览、筛选、收藏
 - 📋 **项目详情**: 详细信息、岗位申请、简历投递
 - 👤 **个人主页**: 用户信息、经历展示、等级积分
@@ -23,6 +23,9 @@
 - 💬 **消息中心**: 私信沟通、系统通知
 - 📄 **简历管理**: 简历编辑、一键投递、申请历史
 - 🔧 **管理后台**: 内容审核、用户管理、系统配置
+- 🏷️ **动态分类**: 支持后台动态添加和管理分类标签
+- 📊 **API驱动**: 所有数据通过RESTful API获取，支持实时更新
+- 🛡️ **错误处理**: 完善的错误页面和错误边界，提供友好的用户体验
 
 ## 快速开始
 
@@ -78,7 +81,9 @@ src/
 ├── api/                 # API接口层
 │   ├── index.ts        # API基础配置
 │   ├── user.ts         # 用户相关API
-│   └── project.ts      # 项目相关API
+│   ├── project.ts      # 项目相关API
+│   ├── home.ts         # 首页数据API
+│   └── category.ts     # 分类管理API
 ├── components/         # 通用组件
 │   ├── TopNavBar.vue   # 顶部导航栏
 │   ├── CarouselBanner.vue # 轮播图
@@ -86,14 +91,17 @@ src/
 │   ├── CompetitionCard.vue # 比赛卡片
 │   ├── ProjectCard.vue     # 项目卡片
 │   ├── ShareCard.vue       # 分享卡片
-│   └── Sidebar.vue         # 侧边栏
+│   ├── Sidebar.vue         # 侧边栏
+│   ├── ErrorBoundary.vue   # 错误边界组件
+│   └── CustomSelect.vue    # 自定义下拉选择器
 ├── stores/            # 状态管理
 │   ├── user.ts        # 用户状态
 │   └── project.ts     # 项目状态
 ├── types/             # TypeScript类型定义
 │   └── index.ts       # 全局类型
 ├── utils/             # 工具函数
-│   └── date.ts        # 日期处理
+│   ├── date.ts        # 日期处理
+│   └── error.ts       # 错误处理工具
 ├── views/             # 页面组件
 │   ├── HomePage.vue   # 首页
 │   ├── TeamHallPage.vue # 组队大厅
@@ -102,7 +110,9 @@ src/
 │   ├── LaunchTeamPage.vue # 发起组队
 │   ├── MessageCenter.vue  # 消息中心
 │   ├── MyResumePage.vue   # 简历管理
-│   └── AdminDashboard.vue # 管理后台
+│   ├── AdminDashboard.vue # 管理后台
+│   ├── ErrorPage.vue      # 错误页面
+│   └── TestErrorPage.vue  # 错误测试页面
 ├── router/            # 路由配置
 │   └── index.ts       # 路由定义
 ├── style.css          # 全局样式
@@ -490,15 +500,168 @@ PATCH /api/notifications/{id}/read
 Authorization: Bearer <token>
 ```
 
-### 8. 管理后台 API
+### 8. 分类管理 API
 
-#### 8.1 获取举报内容列表
+#### 8.1 获取所有分类
+```http
+GET /api/categories
+```
+
+#### 8.2 根据类型获取分类
+```http
+GET /api/categories?type=shares
+```
+
+#### 8.3 获取活跃分类
+```http
+GET /api/categories?isActive=true
+```
+
+#### 8.4 创建分类（管理员）
+```http
+POST /api/categories
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "新分类",
+  "type": "shares", // competitions, projects, shares
+  "order": 1,
+  "isActive": true
+}
+```
+
+#### 8.5 更新分类（管理员）
+```http
+PUT /api/categories/{id}
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "更新后的分类名",
+  "order": 2,
+  "isActive": false
+}
+```
+
+#### 8.6 删除分类（管理员）
+```http
+DELETE /api/categories/{id}
+Authorization: Bearer <token>
+```
+
+### 9. 首页数据 API
+
+#### 9.1 获取轮播图
+```http
+GET /api/home/banners
+```
+
+**响应示例**:
+```json
+[
+  {
+    "id": 1,
+    "title": "蓝桥杯程序设计大赛",
+    "image": "/banners/lanqiao.jpg",
+    "link": "/competition/1",
+    "order": 1,
+    "isActive": true
+  }
+]
+```
+
+#### 9.2 获取首页比赛列表
+```http
+GET /api/home/competitions?limit=10&category=算法
+```
+
+**查询参数**:
+- `limit`: 返回数量限制 (默认: 10)
+- `category`: 比赛分类
+
+#### 9.3 获取首页项目列表
+```http
+GET /api/home/projects?limit=10&status=recruiting
+```
+
+**查询参数**:
+- `limit`: 返回数量限制 (默认: 10)
+- `status`: 项目状态 (recruiting/in_progress/completed)
+
+#### 9.4 获取首页分享列表
+```http
+GET /api/home/shares?limit=20&category=AI
+```
+
+**查询参数**:
+- `limit`: 返回数量限制 (默认: 20)
+- `category`: 分享分类 (AI/CS/EE)
+
+#### 9.5 获取首页公告列表
+```http
+GET /api/home/announcements?limit=5&type=system
+```
+
+**查询参数**:
+- `limit`: 返回数量限制 (默认: 5)
+- `type`: 公告类型 (system/competition/project)
+
+**响应示例**:
+```json
+[
+  {
+    "id": 1,
+    "title": "平台功能更新通知",
+    "content": "新增了更多功能，欢迎体验！",
+    "type": "system",
+    "isImportant": true,
+    "createdAt": "2024-01-15T10:00:00Z"
+  }
+]
+```
+
+#### 9.6 获取热门标签
+```http
+GET /api/home/hot-tags
+```
+
+**响应示例**:
+```json
+["#蓝桥杯", "#互联网+", "#数模竞赛", "#AI", "#Vue.js"]
+```
+
+#### 9.7 获取首页统计数据
+```http
+GET /api/home/stats
+```
+
+**响应示例**:
+```json
+{
+  "totalUsers": 1000,
+  "totalProjects": 50,
+  "totalCompetitions": 10,
+  "hotTopics": [
+    {
+      "id": 1,
+      "title": "Vue3 组合式API最佳实践",
+      "tag": "Vue3",
+      "count": 156
+    }
+  ]
+}
+```
+
+### 10. 管理后台 API
+
+#### 10.1 获取举报内容列表
 ```http
 GET /api/admin/reports?status=pending&page=1&pageSize=10
 Authorization: Bearer <token>
 ```
 
-#### 8.2 处理举报
+#### 10.2 处理举报
 ```http
 PATCH /api/admin/reports/{id}
 Authorization: Bearer <token>
@@ -510,25 +673,25 @@ Content-Type: application/json
 }
 ```
 
-#### 8.3 获取用户统计
+#### 10.3 获取用户统计
 ```http
 GET /api/admin/stats/users
 Authorization: Bearer <token>
 ```
 
-#### 8.4 获取项目统计
+#### 10.4 获取项目统计
 ```http
 GET /api/admin/stats/projects
 Authorization: Bearer <token>
 ```
 
-#### 8.5 获取待审核项目
+#### 10.5 获取待审核项目
 ```http
 GET /api/admin/projects/pending?page=1&pageSize=10
 Authorization: Bearer <token>
 ```
 
-#### 8.6 审核项目
+#### 10.6 审核项目
 ```http
 PATCH /api/admin/projects/{id}/review
 Authorization: Bearer <token>
@@ -593,9 +756,20 @@ Content-Type: application/json
 ### API调用
 
 - 使用封装的apiClient进行HTTP请求
-- 统一错误处理
+- 统一错误处理，包括网络错误和服务器错误
 - 请求拦截器自动添加token
 - 响应拦截器处理401错误
+- 使用Promise.allSettled处理并发请求
+- 网络错误时显示默认数据，确保用户体验
+
+### 错误处理
+
+- 使用ErrorBoundary组件捕获组件渲染错误
+- 统一的错误页面显示不同类型的错误
+- 支持404、403、500、网络错误等多种错误类型
+- 自动跳转到错误页面处理API错误
+- 提供重试、返回首页等操作选项
+- 开发环境显示详细错误信息
 
 ## 部署说明
 
@@ -645,11 +819,3 @@ server {
 4. 推送到分支
 5. 创建Pull Request
 
-## 许可证
-
-MIT License
-
-## 联系方式
-
-- 项目地址: https://github.com/your-username/smartedu-team-app
-- 问题反馈: https://github.com/your-username/smartedu-team-app/issues

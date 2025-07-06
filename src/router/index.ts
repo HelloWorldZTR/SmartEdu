@@ -49,6 +49,30 @@ const routes: RouteRecordRaw[] = [
     name: 'Admin',
     component: () => import('@/views/AdminDashboard.vue'),
     meta: { title: '管理后台', requiresAdmin: true }
+  },
+  {
+    path: '/test-error',
+    name: 'TestError',
+    component: () => import('@/views/TestErrorPage.vue'),
+    meta: { title: '错误测试' }
+  },
+  // 错误页面路由
+  {
+    path: '/error/:type',
+    name: 'Error',
+    component: () => import('@/views/ErrorPage.vue'),
+    meta: { title: '错误页面' }
+  },
+  // 404 捕获路由 - 必须放在最后
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/ErrorPage.vue'),
+    meta: { title: '页面未找到' },
+    beforeEnter: (to) => {
+      // 重定向到404错误页面
+      return { name: 'Error', params: { type: '404' } }
+    }
   }
 ]
 

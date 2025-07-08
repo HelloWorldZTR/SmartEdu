@@ -32,3 +32,12 @@ class ShareDetailView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:
             return [permissions.IsAuthenticated()]
         return [permissions.AllowAny()]
+
+class HotShareListView(generics.ListAPIView):
+    """热门分享列表"""
+    queryset = Share.objects.all()
+    serializer_class = ShareSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return self.queryset.order_by('-likes')[:5]

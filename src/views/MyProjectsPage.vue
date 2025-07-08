@@ -331,7 +331,7 @@ const formatDate = (dateString: string) => {
 const loadSidebarData = async () => {
   try {
     // 获取标签
-    const tagsResponse = await homeApi.getHotTags()
+    const tagsResponse = await homeApi.getTags()
     let tagData = []
     if (Array.isArray(tagsResponse)) {
       tagData = tagsResponse
@@ -357,7 +357,7 @@ const loadSidebarData = async () => {
     announcements.value = announcementData
 
     // 获取话题
-    const topicsResponse = await homeApi.getHotTopics()
+    const topicsResponse = await homeApi.getTopics()
     let topicData = []
     if (Array.isArray(topicsResponse)) {
       topicData = topicsResponse
@@ -370,25 +370,6 @@ const loadSidebarData = async () => {
     topics.value = topicData
   } catch (error) {
     console.error('Failed to fetch sidebar data:', error)
-    // 设置默认数据作为后备
-    tags.value = ['#蓝桥杯', '#互联网+', '#数模竞赛', '#AI', '#Vue.js']
-    announcements.value = [
-      {
-        id: 1,
-        title: '平台功能更新通知',
-        content: '新增了更多功能，欢迎体验！',
-        type: 'system',
-        isImportant: true,
-        createdAt: '2024-01-15'
-      }
-    ]
-    topics.value = [
-      { id: 1, title: 'Vue.js 2023年趋势', tag: '#Vue.js', count: 1200 },
-      { id: 2, title: 'TypeScript 最佳实践', tag: '#TypeScript', count: 900 },
-      { id: 3, title: '前端性能优化', tag: '#前端', count: 850 },
-      { id: 4, title: 'React Hooks 使用指南', tag: '#React', count: 700 },
-      { id: 5, title: 'Node.js 最佳实践', tag: '#Node.js', count: 650 }
-    ]
   }
 }
 

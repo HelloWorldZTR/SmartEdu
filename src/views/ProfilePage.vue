@@ -44,34 +44,33 @@
         
         <!-- 详细内容 -->
         <div class="lg:col-span-2 space-y-6">
-          <!-- 技能和兴趣 -->
+          <!-- 技能与兴趣方向 -->
           <div class="card">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4">技能和兴趣</h2>
-            <div class="space-y-4">
-              <div>
-                <h3 class="text-sm font-medium text-gray-700 mb-2">技能标签</h3>
-                <div class="flex flex-wrap gap-2">
-                  <span
-                    v-for="skill in userStore.userSkills"
-                    :key="skill"
-                    class="tag"
-                  >
-                    {{ skill }}
-                  </span>
-                </div>
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">技能与兴趣方向</h2>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span
+                v-for="skill in userStore.currentUser?.skills || []"
+                :key="skill"
+                class="tag bg-green-100 text-green-800"
+              >
+                {{ skill }}
+              </span>
+            </div>
+            <div>
+              <h3 class="text-sm font-medium text-gray-700 mb-2">兴趣方向</h3>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  v-for="interest in userStore.currentUser?.interests || []"
+                  :key="interest"
+                  class="tag bg-blue-100 text-blue-800"
+                >
+                  {{ interest }}
+                </span>
               </div>
-              <div>
-                <h3 class="text-sm font-medium text-gray-700 mb-2">兴趣方向</h3>
-                <div class="flex flex-wrap gap-2">
-                  <span
-                    v-for="interest in userStore.currentUser?.interests || []"
-                    :key="interest"
-                    class="tag bg-blue-100 text-blue-800"
-                  >
-                    {{ interest }}
-                  </span>
-                </div>
-              </div>
+            </div>
+            <div class="mt-8">
+              <h3 class="text-sm font-medium text-gray-700 mb-2">能力雷达图</h3>
+              <VueECharts :option="radarOption" style="width: 100%; max-width: 400px; height: 320px; margin: 0 auto;" />
             </div>
           </div>
           
@@ -107,11 +106,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import TopNavBar from '@/components/TopNavBar.vue'
 import { useUserStore } from '@/stores/user'
 import { formatDate } from '@/utils/date'
 import type { Project } from '@/types'
+import VueECharts from 'vue-echarts'
+import * as echarts from 'echarts/core'
+import { RadarChart } from 'echarts/charts'
+import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
+
+echarts.use([RadarChart, TitleComponent, TooltipComponent, LegendComponent, CanvasRenderer])
 
 const userStore = useUserStore()
 
@@ -141,6 +147,53 @@ const userProjects = ref<Project[]>([
     updatedAt: '2024-01-15'
   }
 ])
+
+const abilityData = ref([
+  80, // 专业能力
+  70, // 问题解决能力
+  65, // 沟通能力
+  75, // 执行能力
+  85, // 学习能力
+  60  // 领导能力
+])
+
+const radarOption = computed(() => ({
+  title: {
+    text: '能力雷达图',
+    left: 'center',
+    top: 0,
+    textStyle: { fontSize: 16 }
+  },
+  tooltip: {},
+  radar: {
+    indicator: [
+      { name: '专业能力', max: 100 },
+      { name: '问题解决能力', max: 100 },
+      { name: '沟通能力', max: 100 },
+      { name: '执行能力', max: 100 },
+      { name: '学习能力', max: 100 },
+      { name: '领导能力', max: 100 }
+    ],
+    radius: 80
+  },
+  series: [
+    {
+      name: '能力评估',
+      type: 'radar',
+      data: [
+        {
+          value: abilityData.value,
+          name: '我的能力',
+          areaStyle: { color: 'rgba(59,130,246,0.2)' },
+          lineStyle: { color: '#3b82f6' },
+          symbol: 'circle',
+          symbolSize: 6,
+          itemStyle: { color: '#3b82f6' }
+        }
+      ]
+    }
+  ]
+}))
 
 const getStatusClass = (status: string) => {
   switch (status) {

@@ -19,4 +19,9 @@ urlpatterns = [
     
     # 项目搜索
     path('projects/search', views.ProjectSearchView.as_view(), name='project-search'),
+    
+    # 我的项目相关
+    path('projects/my-created', views.MyCreatedProjectsView.as_view(), name='my-created-projects'),
+    path('projects/my-participated', views.MyParticipatedProjectsView.as_view(), name='my-participated-projects'),
+    path('projects/my-applications', views.MyApplicationsView.as_view(), name='my-applications'),
 ] 

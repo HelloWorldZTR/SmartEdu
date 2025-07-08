@@ -84,4 +84,25 @@ export const projectApi = {
   // 搜索项目
   searchProjects: (query: string) =>
     apiClient.get<PaginatedResponse<Project>>('/projects/search', { q: query }),
+
+  // 获取我创建的项目
+  getMyCreatedProjects: (params?: {
+    page?: number
+    pageSize?: number
+    status?: string
+  }) => apiClient.get<PaginatedResponse<Project>>('/projects/my-created', params),
+
+  // 获取我参与的项目
+  getMyParticipatedProjects: (params?: {
+    page?: number
+    pageSize?: number
+    status?: string
+  }) => apiClient.get<PaginatedResponse<Project>>('/projects/my-participated', params),
+
+  // 获取我的申请记录
+  getMyApplications: (params?: {
+    page?: number
+    pageSize?: number
+    status?: string
+  }) => apiClient.get<PaginatedResponse<Application>>('/projects/my-applications', params),
 } 

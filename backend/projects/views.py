@@ -155,3 +155,49 @@ class ProjectSearchView(generics.ListAPIView):
                 Q(tags__contains=[query])
             )
         return Project.objects.none()
+
+
+class MyCreatedProjectsView(generics.ListAPIView):
+    """获取我创建的项目"""
+    serializer_class = ProjectSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = Project.objects.filter(creator=self.request.user)
+        status_filter = self.request.query_params.get('status')
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+        return queryset.order_by('-created_at')
+
+
+class MyParticipatedProjectsView(generics.ListAPIView):
+    """获取我参与的项目"""
+    serializer_class = ProjectSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        # 获取用户申请并被接受的项目的岗位
+        accepted_applications = Application.objects.filter(
+            applicant=self.request.user,
+            status='accepted'
+        )
+        project_ids = accepted_applications.values_list('project_id', flat=True).distinct()
+        
+        queryset = Project.objects.filter(id__in=project_ids)
+        status_filter = self.request.query_params.get('status')
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+        return queryset.order_by('-created_at')
+
+
+class MyApplicationsView(generics.ListAPIView):
+    """获取我的申请记录"""
+    serializer_class = ApplicationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = Application.objects.filter(applicant=self.request.user)
+        status_filter = self.request.query_params.get('status')
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+        return queryset.order_by('-applied_at')

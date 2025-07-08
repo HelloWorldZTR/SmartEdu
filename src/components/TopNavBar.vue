@@ -104,6 +104,13 @@
                   我的简历
                 </router-link>
                 <router-link
+                  to="/my-projects"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  @click="showUserMenu = false"
+                >
+                  我的项目
+                </router-link>
+                <router-link
                   to="/messages"
                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
                   @click="showUserMenu = false"
@@ -230,6 +237,7 @@ const unreadCount = ref(0)
 const navItems = [
   { name: '首页', path: '/' },
   { name: '组队大厅', path: '/team-hall' },
+  { name: '我的项目', path: '/my-projects' },
 ]
 
 const isActive = (path: string) => {

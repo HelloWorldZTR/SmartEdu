@@ -54,6 +54,7 @@ export interface Job {
   salary_max?: number
   salary_currency?: string
   applications: Application[]
+  project?: Project
 }
 
 // 申请相关类型

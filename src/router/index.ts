@@ -63,6 +63,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: '我的简历', requiresAuth: true }
   },
   {
+    path: '/my-projects',
+    name: 'MyProjects',
+    component: () => import('@/views/MyProjectsPage.vue'),
+    meta: { title: '我的项目', requiresAuth: true }
+  },
+  {
     path: '/admin',
     name: 'Admin',
     component: () => import('@/views/AdminDashboard.vue'),

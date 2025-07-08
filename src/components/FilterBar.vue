@@ -3,17 +3,6 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <!-- 岗位类型 -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">岗位类型</label>
-        <CustomSelect
-          v-model="localFilters.jobType"
-          :options="jobTypeOptions"
-          placeholder="全部岗位"
-          @update:modelValue="handleFilterChange"
-        />
-      </div>
-
-      <!-- 技能标签 -->
-      <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">技能要求</label>
         <div class="flex flex-wrap gap-2">
           <button
@@ -26,6 +15,18 @@
             {{ skill }}
           </button>
         </div>
+      </div>
+
+      <!-- 分类 -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">分类</label>
+        <CustomSelect
+          v-model="localFilters.category"
+          :options="categoryOptions"
+          placeholder="所有项目"
+          @update:modelValue="handleFilterChange"
+          class="w-full"
+        />
       </div>
 
       <!-- 薪酬区间 -->
@@ -75,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, computed } from 'vue'
 import CustomSelect from '@/components/CustomSelect.vue'
 
 interface Filters {
@@ -83,10 +84,12 @@ interface Filters {
   skills: string[]
   salaryRange: string
   targetAudience: string
+  category: string // 新增分类字段
 }
 
 interface Props {
   filters: Filters
+  tags?: string[] // 新增tags prop
 }
 
 interface Emits {
@@ -101,7 +104,8 @@ const localFilters = reactive<Filters>({
   jobType: '',
   skills: [],
   salaryRange: '',
-  targetAudience: ''
+  targetAudience: '',
+  category: '' // 初始化分类字段
 })
 
 const totalCount = ref(0)
@@ -136,6 +140,12 @@ const targetAudienceOptions = [
   { value: 'national', label: '全国' }
 ]
 
+const selectedCategory = ref('')
+const categoryOptions = computed(() => [
+  { value: '', label: '所有项目' },
+  ...(props.tags ? props.tags.map(tag => ({ value: tag, label: tag })) : [])
+])
+
 // 同步props到本地状态
 watch(() => props.filters, (newFilters) => {
   Object.assign(localFilters, newFilters)
@@ -160,6 +170,7 @@ const clearFilters = () => {
   localFilters.skills = []
   localFilters.salaryRange = ''
   localFilters.targetAudience = ''
+  localFilters.category = '' // 清除分类
   emit('clear-filters')
 }
 

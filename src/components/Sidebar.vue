@@ -26,7 +26,7 @@
       <h3 class="text-lg font-semibold text-gray-900 mb-4">热门标签</h3>
       <div class="flex flex-wrap gap-2">
         <button
-          v-for="tag in hashtags"
+          v-for="tag in tagList"
           :key="tag"
           @click="toggleTag(tag)"
           class="tag cursor-pointer transition-colors duration-200"
@@ -64,7 +64,7 @@
       <h3 class="text-lg font-semibold text-gray-900 mb-4">热门话题</h3>
       <div class="space-y-3">
         <div
-          v-for="topic in hotTopics"
+          v-for="topic in topicList"
           :key="topic.id"
           class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors duration-200"
         >
@@ -86,9 +86,9 @@ import { formatRelativeTime } from '@/utils/date'
 import type { Announcement } from '@/api/home'
 
 interface Props {
-  hotTags?: string[]
+  tags?: string[]
   announcements?: Announcement[]
-  hotTopics?: Array<{
+  topics?: Array<{
     id: number
     title: string
     tag: string
@@ -97,9 +97,9 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  hotTags: () => ['#蓝桥杯', '#互联网+', '#数模竞赛', '#AI', '#Vue.js'],
+  tags: () => ['#蓝桥杯', '#互联网+', '#数模竞赛', '#AI', '#Vue.js'],
   announcements: () => [],
-  hotTopics: () => []
+  topics: () => []
 })
 
 const router = useRouter()
@@ -108,9 +108,9 @@ const searchQuery = ref('')
 const selectedTags = ref<string[]>([])
 
 // 使用computed来确保响应式更新
-const hashtags = computed(() => props.hotTags)
+const tagList = computed(() => props.tags)
 const notifications = computed(() => props.announcements)
-const hotTopics = computed(() => props.hotTopics)
+const topicList = computed(() => props.topics)
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {

@@ -11,6 +11,7 @@
       <!-- 筛选栏 -->
       <FilterBar 
         :filters="filters"
+        :tags="allTags"
         @filter-change="handleFilterChange"
         @clear-filters="clearFilters"
       />
@@ -45,11 +46,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { categoryApi } from '@/api/category'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import TopNavBar from '@/components/TopNavBar.vue'
 import FilterBar from '@/components/FilterBar.vue'
 import TeamCard from '@/components/TeamCard.vue'
 import { useProjectStore } from '@/stores/project'
+import { homeApi } from '@/api/home'
 
 const projectStore = useProjectStore()
 
@@ -57,7 +61,8 @@ const filters = {
   jobType: '',
   skills: [] as string[],
   salaryRange: '',
-  targetAudience: ''
+  targetAudience: '',
+  category: '' // 新增分类字段
 }
 
 const handleFilterChange = (newFilters: any) => {
@@ -73,7 +78,36 @@ const handleFavorite = (projectId: number) => {
   console.log('Favorite project:', projectId)
 }
 
+const route = useRoute()
+
+const allTags = ref<string[]>([])
+
+const loadAllTags = async () => {
+  try {
+    const response = await homeApi.getTags()
+    let tagData = []
+    if (Array.isArray(response)) {
+      tagData = response
+    } else if (response && typeof response === 'object' && 'results' in response && Array.isArray((response as any).results)) {
+      tagData = (response as any).results
+    } else {
+      console.warn('Tags response format is unexpected:', response)
+      tagData = []
+    }
+    allTags.value = tagData.map((tag: any) => tag.name);
+  } catch (e) {
+    console.error('Failed to load all tags:', e)
+    allTags.value = []
+  }
+}
+
 onMounted(() => {
-  projectStore.fetchProjects()
+  loadAllTags()
+  // 如果有category参数，自动筛选
+  if (route.query.category) {
+    projectStore.setFilters({ ...filters, category: route.query.category as string })
+  } else {
+    projectStore.fetchProjects()
+  }
 })
 </script> 

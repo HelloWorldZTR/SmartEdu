@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Banner, Announcement, HotTag, HomeStats, HotTopic
+from .models import Banner, Announcement, Tag, HomeStats, Topic
 
 
 @admin.register(Banner)
@@ -36,8 +36,8 @@ class AnnouncementAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at',)
 
 
-@admin.register(HotTag)
-class HotTagAdmin(admin.ModelAdmin):
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'count', 'is_active', 'created_at')
     list_filter = ('is_active', 'created_at')
     search_fields = ('name',)
@@ -66,8 +66,8 @@ class HomeStatsAdmin(admin.ModelAdmin):
     readonly_fields = ('updated_at',)
 
 
-@admin.register(HotTopic)
-class HotTopicAdmin(admin.ModelAdmin):
+@admin.register(Topic)
+class TopicAdmin(admin.ModelAdmin):
     list_display = ('title', 'tag', 'count', 'is_active', 'created_at')
     list_filter = ('is_active', 'created_at')
     search_fields = ('title', 'tag')

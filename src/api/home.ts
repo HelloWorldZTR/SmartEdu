@@ -55,17 +55,17 @@ export const homeApi = {
   getAnnouncements: (params?: { limit?: number; type?: string }) =>
     apiClient.get<PaginatedResponse<Announcement>>('/home/announcements', params),
 
-  // 获取首页统计数据
-  getHomeStats: () => apiClient.get('/home/stats'),
+  // // 获取首页统计数据
+  // getHomeStats: () => apiClient.get('/home/stats'),
 
-  // 获取热门标签
-  getHotTags: () => apiClient.get<PaginatedResponse<string>>('/home/hot-tags'),
+  // 获取标签
+  getTags: () => apiClient.get<PaginatedResponse<string>>('/tags'),
 
-  // 获取热门话题
-  getHotTopics: () => apiClient.get<PaginatedResponse<{
+  // 获取话题
+  getTopics: () => apiClient.get<PaginatedResponse<{
     id: number
     title: string
     tag: string
     count: number
-  }>>('/home/hot-topics'),
+  }>>('/topics'),
 } 

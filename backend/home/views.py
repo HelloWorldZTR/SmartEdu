@@ -2,10 +2,10 @@ from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Count
-from .models import Banner, Announcement, HotTag, HomeStats, HotTopic
+from .models import Banner, Announcement, Tag, HomeStats, Topic
 from .serializers import (
-    BannerSerializer, AnnouncementSerializer, HotTagSerializer,
-    HomeStatsSerializer, HotTopicSerializer
+    BannerSerializer, AnnouncementSerializer, TagSerializer,
+    HomeStatsSerializer, TopicSerializer
 )
 from users.models import User
 from projects.models import Project
@@ -80,17 +80,17 @@ class AnnouncementListView(generics.ListAPIView):
         return queryset[:limit]
 
 
-class HotTagListView(generics.ListAPIView):
-    """获取热门标签"""
-    queryset = HotTag.objects.filter(is_active=True)
-    serializer_class = HotTagSerializer
+class TagListView(generics.ListAPIView):
+    """获取标签列表"""
+    queryset = Tag.objects.filter(is_active=True)
+    serializer_class = TagSerializer
     permission_classes = [permissions.AllowAny]
 
 
-class HotTopicListView(generics.ListAPIView):
-    """获取热门话题"""
-    queryset = HotTopic.objects.filter(is_active=True)
-    serializer_class = HotTopicSerializer
+class TopicListView(generics.ListAPIView):
+    """获取话题列表"""
+    queryset = Topic.objects.filter(is_active=True)
+    serializer_class = TopicSerializer
     permission_classes = [permissions.AllowAny]
 
 
@@ -104,6 +104,6 @@ class HomeStatsView(APIView):
             'totalProjects': Project.objects.count(),
             'totalCompetitions': Competition.objects.filter(is_active=True).count(),
             'totalShares': Share.objects.count(),
-            'hotTopics': HotTopic.objects.filter(is_active=True)[:5].values('id', 'title', 'tag', 'count')
+            'hotTopics': Tag.objects.filter(is_active=True)[:5].values('id', 'title', 'tag', 'count')
         }
         return Response(stats)

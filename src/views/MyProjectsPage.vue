@@ -191,7 +191,7 @@
         </div>
         <!-- 侧边栏 -->
         <div class="lg:col-span-1 space-y-6">
-          <Sidebar :hot-tags="hotTags" :announcements="announcements" :hot-topics="hotTopics" />
+          <Sidebar :tags="tags" :announcements="announcements" :topics="topics" />
         </div>
       </div>
     </div>
@@ -225,9 +225,9 @@ const filters = reactive({
   status: ''
 })
 
-const hotTags = ref<string[]>([])
+const tags = ref<string[]>([])
 const announcements = ref<any[]>([])
-const hotTopics = ref<any[]>([])
+const topics = ref<any[]>([])
 
 // 状态选项
 const statusOptions = [
@@ -330,7 +330,7 @@ const formatDate = (dateString: string) => {
 // 加载Sidebar数据
 const loadSidebarData = async () => {
   try {
-    // 获取热门标签
+    // 获取标签
     const tagsResponse = await homeApi.getHotTags()
     let tagData = []
     if (Array.isArray(tagsResponse)) {
@@ -338,10 +338,10 @@ const loadSidebarData = async () => {
     } else if (tagsResponse && typeof tagsResponse === 'object' && 'results' in tagsResponse && Array.isArray((tagsResponse as any).results)) {
       tagData = (tagsResponse as any).results
     } else {
-      console.warn('Hot tags response format is unexpected:', tagsResponse)
+      console.warn('Tags response format is unexpected:', tagsResponse)
       tagData = []
     }
-    hotTags.value = tagData.map((tag: any) => `#${tag.name}`)
+    tags.value = tagData.map((tag: any) => `#${tag.name}`)
 
     // 获取公告
     const annResponse = await homeApi.getAnnouncements({ limit: 5 })
@@ -356,7 +356,7 @@ const loadSidebarData = async () => {
     }
     announcements.value = announcementData
 
-    // 获取热门话题
+    // 获取话题
     const topicsResponse = await homeApi.getHotTopics()
     let topicData = []
     if (Array.isArray(topicsResponse)) {
@@ -364,14 +364,14 @@ const loadSidebarData = async () => {
     } else if (topicsResponse && typeof topicsResponse === 'object' && 'results' in topicsResponse && Array.isArray((topicsResponse as any).results)) {
       topicData = (topicsResponse as any).results
     } else {
-      console.warn('Hot topics response format is unexpected:', topicsResponse)
+      console.warn('Topics response format is unexpected:', topicsResponse)
       topicData = []
     }
-    hotTopics.value = topicData
+    topics.value = topicData
   } catch (error) {
     console.error('Failed to fetch sidebar data:', error)
     // 设置默认数据作为后备
-    hotTags.value = ['#蓝桥杯', '#互联网+', '#数模竞赛', '#AI', '#Vue.js']
+    tags.value = ['#蓝桥杯', '#互联网+', '#数模竞赛', '#AI', '#Vue.js']
     announcements.value = [
       {
         id: 1,
@@ -382,7 +382,7 @@ const loadSidebarData = async () => {
         createdAt: '2024-01-15'
       }
     ]
-    hotTopics.value = [
+    topics.value = [
       { id: 1, title: 'Vue.js 2023年趋势', tag: '#Vue.js', count: 1200 },
       { id: 2, title: 'TypeScript 最佳实践', tag: '#TypeScript', count: 900 },
       { id: 3, title: '前端性能优化', tag: '#前端', count: 850 },

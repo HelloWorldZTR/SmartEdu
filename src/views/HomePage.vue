@@ -67,9 +67,10 @@
         <!-- 侧边栏 -->
         <div class="lg:col-span-1 space-y-6">
           <Sidebar 
-            :hot-tags="hotTags"
+            :tags="tags"
             :announcements="announcements"
             :hot-topics="hotTopics"
+            @category-change="handleCategoryChange"
           />
         </div>
       </div>
@@ -90,6 +91,7 @@ import { categoryApi } from '@/api/category'
 import { homeApi } from '@/api/home'
 import type { Competition, Project, Share, Category } from '@/types'
 import type { Banner, Announcement } from '@/api/home'
+import { useRouter } from 'vue-router'
 
 const activeTab = ref('competitions')
 const categories = ref<Category[]>([])
@@ -107,7 +109,7 @@ const competitions = ref<Competition[]>([])
 const projects = ref<Project[]>([])
 const shares = ref<Share[]>([])
 const announcements = ref<Announcement[]>([])
-const hotTags = ref<string[]>([])
+const tags = ref<string[]>([])
 const hotTopics = ref<Array<{
   id: number
   title: string
@@ -204,7 +206,6 @@ const fetchCategories = async () => {
     for (const category of categories.value) {
       category.id = String(category.id) //Fix this stupid bug
     }
-    console.log(categories.value)
 
     // 设置默认选中的标签
     if (categories.value.length > 0) {
@@ -231,25 +232,6 @@ const fetchBanners = async () => {
     banners.value = bannerData.filter((banner: any) => banner.isActive || banner.is_active).sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
   } catch (error) {
     console.error('Failed to fetch banners:', error)
-    // 设置默认轮播图作为后备
-    banners.value = [
-      {
-        id: 1,
-        title: '蓝桥杯程序设计大赛',
-        image: '/banners/lanqiao.jpg',
-        link: '/competition/1',
-        order: 1,
-        isActive: true
-      },
-      {
-        id: 2,
-        title: '互联网+创新创业大赛',
-        image: '/banners/internet-plus.jpg',
-        link: '/competition/2',
-        order: 2,
-        isActive: true
-      }
-    ]
   }
 }
 
@@ -268,29 +250,9 @@ const fetchCompetitions = async () => {
       console.warn('Competitions response format is unexpected:', response)
       competitionData = []
     }
-    
     competitions.value = competitionData
   } catch (error) {
     console.error('Failed to fetch competitions:', error)
-    // 设置默认比赛数据作为后备
-    competitions.value = [
-      {
-        id: 1,
-        title: '蓝桥杯程序设计大赛',
-        organizer: '蓝桥杯组委会',
-        deadline: '2024-03-15',
-        tags: ['算法', '编程'],
-        description: '全国性的程序设计竞赛'
-      },
-      {
-        id: 2,
-        title: '互联网+创新创业大赛',
-        organizer: '教育部',
-        deadline: '2024-04-20',
-        tags: ['创业', '创新'],
-        description: '大学生创新创业竞赛'
-      }
-    ]
   }
 }
 
@@ -301,7 +263,7 @@ const fetchProjects = async () => {
     
     // 确保response格式正确
     let projectData = []
-    if (Array.isArray(response)) {
+    if (Array.isArray(response) ) {
       projectData = response
     } else if (response && typeof response === 'object' && 'results' in response && Array.isArray((response as any).results)) {
       projectData = (response as any).results
@@ -313,32 +275,6 @@ const fetchProjects = async () => {
     projects.value = projectData
   } catch (error) {
     console.error('Failed to fetch projects:', error)
-    // 设置默认项目数据作为后备
-    projects.value = [
-      {
-        id: 1,
-        title: '智能校园导航系统',
-        description: '基于AI的校园导航应用',
-        creator: {
-          id: 1,
-          username: '张三',
-          email: 'zhangsan@example.com',
-          school: '清华大学',
-          department: '计算机系',
-          level: 5,
-          points: 1200,
-          skills: ['Vue.js', 'Python'],
-          interests: ['AI', 'Web开发'],
-          createdAt: '2024-01-01'
-        },
-        targetAudience: 'school',
-        tags: ['AI', '导航'],
-        jobs: [],
-        status: 'recruiting',
-        createdAt: '2024-01-15',
-        updatedAt: '2024-01-15'
-      }
-    ]
   }
 }
 
@@ -363,49 +299,6 @@ const fetchShares = async () => {
     // console.log(shares.value)
   } catch (error) {
     console.error('Failed to fetch shares:', error)
-    // 设置默认分享数据作为后备
-    shares.value = [
-      {
-        id: 1,
-        title: 'Vue3 + TypeScript 最佳实践',
-        author: {
-          id: 1,
-          username: '李四',
-          email: 'lisi@example.com',
-          school: '北京大学',
-          department: '软件工程',
-          level: 4,
-          points: 800,
-          skills: ['Vue.js', 'TypeScript'],
-          interests: ['前端开发'],
-          createdAt: '2024-01-01'
-        },
-        content: '分享Vue3和TypeScript的使用经验...',
-        techStack: ['Vue3', 'TypeScript', 'Vite'],
-        category: { id: 'CS', name: 'CS', type: 'shares', order: 4, isActive: true },
-        publishedAt: '2024-01-10'
-      },
-      {
-        id: 2,
-        title: '机器学习入门指南',
-        author: {
-          id: 2,
-          username: '王五',
-          email: 'wangwu@example.com',
-          school: '复旦大学',
-          department: '人工智能',
-          level: 6,
-          points: 1500,
-          skills: ['Python', 'TensorFlow'],
-          interests: ['机器学习'],
-          createdAt: '2024-01-01'
-        },
-        content: '从零开始学习机器学习的基础知识...',
-        techStack: ['Python', 'TensorFlow', 'Scikit-learn'],
-        category: { id: 'AI', name: 'AI', type: 'shares', order: 3, isActive: true },
-        publishedAt: '2024-01-12'
-      }
-    ]
   }
 }
 
@@ -428,24 +321,13 @@ const fetchAnnouncements = async () => {
     announcements.value = announcementData
   } catch (error) {
     console.error('Failed to fetch announcements:', error)
-    // 设置默认公告数据作为后备
-    announcements.value = [
-      {
-        id: 1,
-        title: '平台功能更新通知',
-        content: '新增了更多功能，欢迎体验！',
-        type: 'system',
-        isImportant: true,
-        createdAt: '2024-01-15'
-      }
-    ]
   }
 }
 
 // 获取热门标签
-const fetchHotTags = async () => {
+const fetchTags = async () => {
   try {
-    const response = await homeApi.getHotTags()
+      const response = await homeApi.getTags()
     
     // 确保response格式正确
     let tagData = []
@@ -458,18 +340,16 @@ const fetchHotTags = async () => {
       tagData = []
     }
     
-    hotTags.value = tagData.map((tag: any) => `#${tag.name}`)
+    tags.value = tagData.map((tag: any) => "#" + tag.name);
   } catch (error) {
     console.error('Failed to fetch hot tags:', error)
-    // 设置默认热门标签作为后备
-    hotTags.value = ['#蓝桥杯', '#互联网+', '#数模竞赛', '#AI', '#Vue.js']
   }
 }
 
 // 获取热门话题
 const fetchHotTopics = async () => {
   try {
-    const response = await homeApi.getHotTopics()
+    const response = await homeApi.getTopics()
     
     // 确保response格式正确
     let topicData = []
@@ -485,32 +365,24 @@ const fetchHotTopics = async () => {
     hotTopics.value = topicData
   } catch (error) {
     console.error('Failed to fetch hot topics:', error)
-    // 设置默认热门话题作为后备
-    hotTopics.value = [
-      { id: 1, title: 'Vue.js 2023年趋势', tag: '#Vue.js', count: 1200 },
-      { id: 2, title: 'TypeScript 最佳实践', tag: '#TypeScript', count: 900 },
-      { id: 3, title: '前端性能优化', tag: '#前端', count: 850 },
-      { id: 4, title: 'React Hooks 使用指南', tag: '#React', count: 700 },
-      { id: 5, title: 'Node.js 最佳实践', tag: '#Node.js', count: 650 }
-    ]
   }
 }
 
 // 获取首页统计数据
-const fetchHomeStats = async () => {
-  try {
-    const response = await homeApi.getHomeStats()
-    homeStats.value = response
-  } catch (error) {
-    console.error('Failed to fetch home stats:', error)
-    // 设置默认统计数据作为后备
-    homeStats.value = {
-      totalUsers: 1000,
-      totalProjects: 50,
-      totalCompetitions: 10
-    }
-  }
-}
+// const fetchHomeStats = async () => {
+//   try {
+//     const response = await homeApi.getHomeStats()
+//     homeStats.value = response
+//   } catch (error) {
+//     console.error('Failed to fetch home stats:', error)
+//     // 设置默认统计数据作为后备
+//     homeStats.value = {
+//       totalUsers: 1000,
+//       totalProjects: 50,
+//       totalCompetitions: 10
+//     }
+//   }
+// }
 
 // 获取所有首页数据
 const fetchAllData = async () => {
@@ -524,15 +396,15 @@ const fetchAllData = async () => {
       fetchShares(),
       fetchCategories(),
       fetchAnnouncements(),
-      fetchHotTags(),
+      fetchTags(),
       fetchHotTopics(), // 新增热门话题
-      fetchHomeStats()
+      // fetchHomeStats()
     ])
     
     // 检查哪些请求失败了
     results.forEach((result, index) => {
       if (result.status === 'rejected') {
-        const apiNames = ['categories', 'banners', 'competitions', 'projects', 'shares', 'announcements', 'hotTags', 'hotTopics', 'homeStats']
+        const apiNames = ['categories', 'banners', 'competitions', 'projects', 'shares', 'announcements', 'tags', 'hotTopics', 'homeStats']
         console.error(`Failed to fetch ${apiNames[index]}:`, result.reason)
       }
     })
@@ -541,6 +413,16 @@ const fetchAllData = async () => {
   } finally {
     isLoading.value = false
   }
+}
+
+const router = useRouter()
+
+// 处理Sidebar分类点击
+const handleCategoryChange = (category: string) => {
+  router.push({
+    path: '/team-hall',
+    query: { category }
+  })
 }
 
 onMounted(() => {

@@ -13,6 +13,9 @@ export const categoryApi = {
   getActiveCategories: () => 
     apiClient.get<Category[]>('/categories?isActive=true'),
 
+  // 获取所有标签
+  getAllTags: () => apiClient.get<string[]>('/categories/tags'),
+
   // 创建分类（管理员）
   createCategory: (categoryData: Omit<Category, 'id'>) =>
     apiClient.post<Category>('/categories', categoryData),

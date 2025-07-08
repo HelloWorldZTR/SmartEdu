@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Banner, Announcement, HotTag, HomeStats, HotTopic
+from .models import Banner, Announcement, Tag, HomeStats, Topic
 
 
 class BannerSerializer(serializers.ModelSerializer):
@@ -14,9 +14,9 @@ class AnnouncementSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class HotTagSerializer(serializers.ModelSerializer):
+class TagSerializer(serializers.ModelSerializer):
     class Meta:
-        model = HotTag
+        model = Tag
         fields = '__all__'
 
 
@@ -26,7 +26,7 @@ class HomeStatsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class HotTopicSerializer(serializers.ModelSerializer):
+class TopicSerializer(serializers.ModelSerializer):
     class Meta:
-        model = HotTopic
+        model = Topic
         fields = '__all__' 

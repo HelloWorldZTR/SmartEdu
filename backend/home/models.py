@@ -45,7 +45,7 @@ class Announcement(models.Model):
         return self.title
 
 
-class HotTag(models.Model):
+class Tag(models.Model):
     """热门标签模型"""
     name = models.CharField(max_length=50, unique=True, verbose_name='标签名')
     count = models.IntegerField(default=0, verbose_name='使用次数')
@@ -79,7 +79,7 @@ class HomeStats(models.Model):
         return f"首页统计 - {self.updated_at.strftime('%Y-%m-%d %H:%M')}"
 
 
-class HotTopic(models.Model):
+class Topic(models.Model):
     """热门话题模型"""
     title = models.CharField(max_length=200, verbose_name='话题标题')
     tag = models.CharField(max_length=50, verbose_name='标签')

@@ -163,9 +163,10 @@
         <!-- 标签设置 -->
         <div class="card">
           <h2 class="text-xl font-semibold text-gray-900 mb-4">项目标签</h2>
+          <input v-model="tagSearch" placeholder="搜索标签..." class="input-field mb-2" />
           <div class="flex flex-wrap gap-2">
             <button
-              v-for="tag in availableTags"
+              v-for="tag in filteredTags"
               :key="tag"
               type="button"
               @click="toggleTag(tag)"
@@ -200,11 +201,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import TopNavBar from '@/components/TopNavBar.vue'
 import CustomSelect from '@/components/CustomSelect.vue'
 import { useProjectStore } from '@/stores/project'
+import { homeApi } from '@/api/home'
 
 const router = useRouter()
 const projectStore = useProjectStore()
@@ -236,10 +238,42 @@ const availableSkills = [
   '机器学习', '深度学习', 'Node.js', 'MySQL', 'MongoDB'
 ]
 
-const availableTags = [
-  'AI', 'Vue.js', 'React', 'Python', 'Java', '机器学习',
-  'Web开发', '移动开发', '数据库', '云计算', '区块链'
-]
+const availableTags = ref<string[]>([])
+
+// 标签搜索
+const tagSearch = ref('')
+const filteredTags = computed(() => {
+  if (!tagSearch.value) return availableTags.value
+  return availableTags.value.filter(tag => tag.toLowerCase().includes(tagSearch.value.toLowerCase()))
+})
+
+// 加载所有标签
+const loadTags = async () => {
+  try {
+    const response = await homeApi.getTags()
+    let tagData = []
+    if (Array.isArray(response)) {
+      tagData = response
+    } else if (response && typeof response === 'object' && 'results' in response && Array.isArray((response as any).results)) {
+      tagData = (response as any).results
+    } else {
+      console.warn('Tags response format is unexpected:', response)
+      tagData = []
+    }
+    for (const tag of tagData) {
+      availableTags.value.push(tag.name)
+    }
+  } catch (e) {
+    availableTags.value = [
+      'AI', 'Vue.js', 'React', 'Python', 'Java', '机器学习',
+      'Web开发', '移动开发', '数据库', '云计算', '区块链'
+    ]
+  }
+}
+
+onMounted(() => {
+  loadTags()
+})
 
 const targetAudienceOptions = [
   { value: 'school', label: '本校' },

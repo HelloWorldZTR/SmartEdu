@@ -149,7 +149,7 @@
                   </span>
                 </div>
                 <div class="flex items-center justify-between text-sm text-gray-600 mb-3">
-                  <span>申请时间：{{ formatDate(application.appliedAt) }}</span>
+                  <span>申请时间：{{ formatDate(application.created_at) }}</span>
                   <span v-if="application.note" class="text-gray-500">
                     备注：{{ application.note }}
                   </span>
@@ -278,6 +278,7 @@ const loadData = async () => {
       const response = await projectApi.getMyApplications(params)
       applications.value = response.results
       totalCount.value = response.count
+      console.log(applications.value)
     }
   } catch (error) {
     console.error('加载数据失败:', error)

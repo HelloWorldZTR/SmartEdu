@@ -2,12 +2,15 @@ from rest_framework import serializers
 from .models import Project, Job, Application, ProjectFavorite
 from users.serializers import UserSerializer
 
-
+class SimpleProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['id', 'title']
 class JobSerializer(serializers.ModelSerializer):
+    project = SimpleProjectSerializer(read_only=True)
     class Meta:
         model = Job
         fields = '__all__'
-
 
 class ProjectCreateSerializer(serializers.ModelSerializer):
     """用于创建项目的序列化器，处理jobs数据"""

@@ -200,4 +200,4 @@ class MyApplicationsView(generics.ListAPIView):
         status_filter = self.request.query_params.get('status')
         if status_filter:
             queryset = queryset.filter(status=status_filter)
-        return queryset.order_by('-applied_at')
+        return queryset.order_by('-created_at')

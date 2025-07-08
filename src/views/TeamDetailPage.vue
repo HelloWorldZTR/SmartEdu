@@ -13,10 +13,10 @@
           <ProjectDescription v-if="projectStore.currentProject" :project="projectStore.currentProject" />
           
           <!-- 岗位列表 -->
-          <JobPostingsSection v-if="projectStore.currentProject" :project="projectStore.currentProject" />
+          <JobPostingsSection v-if="projectStore.currentProject" :project="projectStore.currentProject" @select-job="handleSelectJob" />
           
           <!-- 申请表单 -->
-          <ApplySection v-if="projectStore.currentProject" :project="projectStore.currentProject" />
+          <ApplySection v-if="projectStore.currentProject" :project="projectStore.currentProject" :selected-job-id="selectedJobId" />
         </div>
         
         <!-- 侧边栏 -->
@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch, computed } from 'vue'
+import { onMounted, watch, computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import TopNavBar from '@/components/TopNavBar.vue'
 import ProjectHeader from '@/components/ProjectHeader.vue'
@@ -81,6 +81,18 @@ const acceptedMembers = computed(() => {
   }
   return members;
 });
+
+const selectedJobId = ref('')
+
+const handleSelectJob = (jobId: string|number) => {
+  // 滚动到申请表单
+  setTimeout(() => {
+    const form = document.getElementById('apply-section-form')
+    if (form) {
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, 100)
+}
 
 onMounted(async () => {
   const projectId = parseInt(route.params.id as string)

@@ -48,6 +48,7 @@
 
 <script setup lang="ts">
 import type { Project, Job } from '@/types'
+import { defineEmits } from 'vue'
 
 interface Props {
   project: Project
@@ -55,9 +56,11 @@ interface Props {
 
 defineProps<Props>()
 
+const emit = defineEmits(['select-job'])
+
 const selectJob = (job: Job) => {
-  // 处理岗位选择逻辑
-  console.log('Selected job:', job)
+  emit('select-job', job.id)
+  // 滚动到申请表单由父组件处理
 }
 
 // 获取薪资信息的辅助函数

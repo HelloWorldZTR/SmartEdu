@@ -12,7 +12,7 @@
       </div>
       <div class="flex items-center justify-between">
         <span class="text-sm text-gray-600">新增用户</span>
-        <span class="text-lg font-bold text-blue-600">12</span>
+        <span class="text-lg font-bold text-primary-600">12</span>
       </div>
     </div>
   </div>

@@ -37,7 +37,7 @@
           </span>
         </div>
         
-        <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+        <span class="text-xs px-2 py-1 rounded-full bg-primary-100 text-primary-800">
           {{ share.category.name }}
         </span>
       </div>

@@ -41,7 +41,7 @@
                   </div>
                   <button 
                     @click="sendMessage(member.id)"
-                    class="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition"
+                    class="text-xs bg-primary-500 text-white px-2 py-1 rounded hover:bg-primary-600 transition"
                   >
                     私信
                   </button>

@@ -4,8 +4,8 @@
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <!-- 调试信息 -->
-      <div v-if="isLoading" class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <p class="text-blue-700">正在加载数据...</p>
+              <div v-if="isLoading" class="mb-4 p-4 bg-primary-50 border border-primary-200 rounded-lg">
+          <p class="text-primary-700">正在加载数据...</p>
       </div>
       
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">

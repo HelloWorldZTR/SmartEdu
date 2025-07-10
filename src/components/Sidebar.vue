@@ -44,15 +44,15 @@
         <div
           v-for="notification in notifications"
           :key="notification.id"
-          class="p-3 bg-blue-50 rounded-lg border border-blue-200"
+          class="p-3 bg-primary-50 rounded-lg border border-primary-200"
         >
-          <h4 class="text-sm font-medium text-blue-900 mb-1">
+          <h4 class="text-sm font-medium text-primary-900 mb-1">
             {{ notification.title }}
           </h4>
-          <p class="text-xs text-blue-700 line-clamp-2">
+          <p class="text-xs text-primary-700 line-clamp-2">
             {{ notification.content }}
           </p>
-          <span class="text-xs text-blue-500 mt-2 block">
+          <span class="text-xs text-primary-500 mt-2 block">
             {{ formatRelativeTime(notification.created_at || notification.createdAt || new Date()) }}
           </span>
         </div>

@@ -28,7 +28,7 @@
             </button>
             <button
               @click="testNetwork"
-              class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              class="w-full px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700"
             >
               测试网络错误
             </button>

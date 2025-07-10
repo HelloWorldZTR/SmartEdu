@@ -62,7 +62,7 @@
                 <span
                   v-for="interest in userStore.currentUser?.interests || []"
                   :key="interest"
-                  class="tag bg-blue-100 text-blue-800"
+                  class="tag bg-primary-100 text-primary-800"
                 >
                   {{ interest }}
                 </span>
@@ -184,11 +184,11 @@ const radarOption = computed(() => ({
         {
           value: abilityData.value,
           name: '我的能力',
-          areaStyle: { color: 'rgba(59,130,246,0.2)' },
-          lineStyle: { color: '#3b82f6' },
+          areaStyle: { color: 'rgba(168,85,247,0.2)' },
+          lineStyle: { color: '#a855f7' },
           symbol: 'circle',
           symbolSize: 6,
-          itemStyle: { color: '#3b82f6' }
+          itemStyle: { color: '#a855f7' }
         }
       ]
     }
@@ -200,7 +200,7 @@ const getStatusClass = (status: string) => {
     case 'recruiting':
       return 'bg-green-100 text-green-800'
     case 'in_progress':
-      return 'bg-blue-100 text-blue-800'
+      return 'bg-primary-100 text-primary-800'
     case 'completed':
       return 'bg-gray-100 text-gray-800'
     default:

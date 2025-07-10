@@ -5,9 +5,7 @@
         <!-- Logo -->
         <div class="flex items-center">
           <router-link to="/" class="flex items-center space-x-2">
-            <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <span class="text-white font-bold text-lg">U</span>
-            </div>
+            <img src="/logo.png" alt="UPRO Logo" class="w-8 h-8" />
             <span class="text-xl font-bold text-gray-900">UPRO·有谱</span>
           </router-link>
         </div>

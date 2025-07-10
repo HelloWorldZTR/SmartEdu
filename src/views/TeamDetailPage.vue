@@ -198,7 +198,7 @@ const pendingApplications = ref([
 const processingApplication = ref<number | null>(null)
 
 const sendMessage = (userId: number) => {
-  router.push(`/messages?userId=${userId}`)
+  window.open(`/messages?userId=${userId}`, '_blank')
 }
 
 const handleApplication = async (applicationId: number, action: 'accept' | 'reject') => {

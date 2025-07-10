@@ -191,18 +191,9 @@ const fetchCategories = async () => {
   try {
     const response = await categoryApi.getActiveCategories()
     
-    // 确保response是数组
-    if (Array.isArray(response)) {
-      categories.value = response
-    } else if (response && typeof response === 'object' && 'results' in response && Array.isArray((response as any).results)) {
-      // 如果response是分页响应格式
-      categories.value = (response as any).results
-    } else {
-      // 如果response不是数组，设置为空数组
-      console.warn('Categories response is not an array:', response)
-      categories.value = []
-    }
     
+    categories.value = (response as any).results
+
     for (const category of categories.value) {
       category.id = String(category.id) //Fix this stupid bug
     }
@@ -213,13 +204,6 @@ const fetchCategories = async () => {
     }
   } catch (error) {
     console.error('Failed to fetch categories:', error)
-    // 设置默认分类作为后备
-    categories.value = [
-      { id: 'competitions', name: '比赛', type: 'competitions', order: 1, isActive: true },
-      { id: 'projects', name: '项目', type: 'projects', order: 2, isActive: true }
-    ]
-    // 确保设置默认选中的标签
-    activeTab.value = 'competitions'
   }
 }
 

@@ -6,6 +6,7 @@ class SimpleProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ['id', 'title']
+
 class JobSerializer(serializers.ModelSerializer):
     project = SimpleProjectSerializer(read_only=True)
     class Meta:

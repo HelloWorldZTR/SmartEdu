@@ -65,7 +65,8 @@ export interface Application {
   resume: Resume
   status: 'pending' | 'accepted' | 'rejected'
   note?: string
-  created_at: string
+  createdAt: string
+  created_at?: string
 }
 
 // 简历相关类型

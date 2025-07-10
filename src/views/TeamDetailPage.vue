@@ -16,28 +16,81 @@
           <JobPostingsSection v-if="projectStore.currentProject" :project="projectStore.currentProject" @select-job="handleSelectJob" />
           
           <!-- 申请表单 -->
-          <ApplySection v-if="projectStore.currentProject" :project="projectStore.currentProject" :selected-job-id="selectedJobId" />
+          <ApplySection v-if="projectStore.currentProject && !isManager" :project="projectStore.currentProject" :selected-job-id="selectedJobId" />
         </div>
         
         <!-- 侧边栏 -->
         <div class="lg:col-span-1 space-y-6">
-          <template v-if="isManager">
-            <div class="card">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">项目管理</h3>
-              <div>
-                <h4 class="text-md font-semibold text-gray-800 mb-2">队员列表</h4>
-                <ul class="space-y-2">
-                  <li v-for="member in acceptedMembers" :key="member.id">
-                    <span class="text-sm text-gray-700">{{ member.applicant.username }}</span>
-                    <span class="text-xs text-gray-400 ml-2">({{ member.jobTitle }})</span>
-                  </li>
-                </ul>
+          <!-- 项目成员预览 -->
+          <div class="card">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">项目成员</h3>
+            
+            <!-- 已加入成员 -->
+            <div class="mb-6">
+              <h4 class="text-md font-semibold text-gray-800 mb-3">已加入 ({{ joinedMembers.length }})</h4>
+              <div class="space-y-3">
+                <div v-for="member in joinedMembers" :key="member.id" class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                      {{ member.username.charAt(0).toUpperCase() }}
+                    </div>
+                    <div>
+                      <div class="text-sm font-medium text-gray-900">{{ member.username }}</div>
+                      <div class="text-xs text-gray-500">{{ member.jobTitle }}</div>
+                    </div>
+                  </div>
+                  <button 
+                    @click="sendMessage(member.id)"
+                    class="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition"
+                  >
+                    私信
+                  </button>
+                </div>
               </div>
-              <button class="w-full py-2 mb-4 bg-red-600 text-white rounded hover:bg-red-700 transition" @click="endProject">
-                结束项目
-              </button>   
             </div>
-          </template>
+
+            <!-- 申请列表 -->
+            <div v-if="isManager">
+              <h4 class="text-md font-semibold text-gray-800 mb-3">待处理申请 ({{ pendingApplications.length }})</h4>
+              <div class="space-y-3">
+                <div v-for="application in pendingApplications" :key="application.id" class="p-3 bg-yellow-50 rounded-lg">
+                  <div class="flex items-center space-x-3 mb-2">
+                    <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                      {{ application.applicant.username.charAt(0).toUpperCase() }}
+                    </div>
+                    <div>
+                      <div class="text-sm font-medium text-gray-900">{{ application.applicant.username }}</div>
+                      <div class="text-xs text-gray-500">{{ application.job.title }}</div>
+                    </div>
+                  </div>
+                  <div class="text-xs text-gray-600 mb-3">{{ application.note || '无申请说明' }}</div>
+                  <div class="flex space-x-2">
+                    <button 
+                      @click="handleApplication(application.id, 'accept')"
+                      class="flex-1 text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition"
+                    >
+                      同意
+                    </button>
+                    <button 
+                      @click="handleApplication(application.id, 'reject')"
+                      class="flex-1 text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                    >
+                      否决
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 项目管理操作 -->
+            <div v-if="isManager" class="mt-6 pt-6 border-t border-gray-200">
+              <h4 class="text-md font-semibold text-gray-800 mb-3">项目管理</h4>
+              <button class="w-full py-2 bg-red-600 text-white rounded hover:bg-red-700 transition" @click="endProject">
+                结束项目
+              </button>
+            </div>
+          </div>
+
           <SimilarProjects/>
         </div>
       </div>
@@ -83,6 +136,64 @@ const acceptedMembers = computed(() => {
 });
 
 const selectedJobId = ref('')
+
+// Dummy data for project members
+const joinedMembers = ref([
+  {
+    id: 1,
+    username: '张三',
+    jobTitle: '前端开发'
+  },
+  {
+    id: 2,
+    username: '李四',
+    jobTitle: '后端开发'
+  },
+  {
+    id: 3,
+    username: '王五',
+    jobTitle: 'UI设计师'
+  }
+])
+
+const pendingApplications = ref([
+  {
+    id: 1,
+    applicant: {
+      id: 4,
+      username: '赵六'
+    },
+    job: {
+      id: 1,
+      title: '前端开发'
+    },
+    note: '我有3年前端开发经验，熟悉Vue.js和React'
+  },
+  {
+    id: 2,
+    applicant: {
+      id: 5,
+      username: '钱七'
+    },
+    job: {
+      id: 2,
+      title: '后端开发'
+    },
+    note: '熟悉Django和Python，有项目经验'
+  }
+])
+
+const sendMessage = (userId: number) => {
+  // TODO: 实现私信功能
+  console.log('发送私信给用户:', userId)
+  alert('私信功能开发中...')
+}
+
+const handleApplication = (applicationId: number, action: 'accept' | 'reject') => {
+  // TODO: 实现申请处理功能
+  console.log('处理申请:', applicationId, action)
+  alert(`${action === 'accept' ? '同意' : '否决'}申请功能开发中...`)
+}
 
 const handleSelectJob = (jobId: string|number) => {
   // 滚动到申请表单

@@ -33,3 +33,19 @@
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800;
   }
 } 
+
+/* 删除动画 */
+@keyframes slide-out {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+.animate-slide-out {
+  animation: slide-out 0.3s ease-in-out forwards;
+} 

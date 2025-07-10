@@ -69,6 +69,38 @@ export interface Application {
   created_at?: string
 }
 
+// 项目成员类型
+export interface ProjectMember {
+  id: number
+  applicant_name: string
+  applicant_id: number
+  job_id: number
+  job_title: string
+  status: 'pending' | 'accepted' | 'rejected'
+  note: string
+}
+
+// 聊天相关类型
+export interface Conversation {
+  id: number
+  participants: User[]
+  created_at: string
+  updated_at: string
+  last_message?: string
+  last_message_time?: string
+  unread_count?: number
+}
+
+export interface ChatMessage {
+  id: number
+  conversation: number
+  sender: User
+  content: string
+  message_type: 'text' | 'image' | 'file'
+  is_read: boolean
+  created_at: string
+}
+
 // 简历相关类型
 export interface Resume {
   id: number

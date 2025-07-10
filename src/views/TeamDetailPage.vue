@@ -53,7 +53,12 @@
             <div v-if="isManager">
               <h4 class="text-md font-semibold text-gray-800 mb-3">待处理申请 ({{ pendingApplications.length }})</h4>
               <div class="space-y-3">
-                <div v-for="application in pendingApplications" :key="application.id" class="p-3 bg-yellow-50 rounded-lg">
+                <div 
+                  v-for="application in pendingApplications" 
+                  :key="application.id" 
+                  :data-application-id="application.id"
+                  class="p-3 bg-yellow-50 rounded-lg transition-all duration-300"
+                >
                   <div class="flex items-center space-x-3 mb-2">
                     <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
                       {{ application.applicant.username.charAt(0).toUpperCase() }}
@@ -67,15 +72,17 @@
                   <div class="flex space-x-2">
                     <button 
                       @click="handleApplication(application.id, 'accept')"
-                      class="flex-1 text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition"
+                      :disabled="processingApplication === application.id"
+                      class="flex-1 text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      同意
+                      {{ processingApplication === application.id ? '处理中...' : '同意' }}
                     </button>
                     <button 
                       @click="handleApplication(application.id, 'reject')"
-                      class="flex-1 text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                      :disabled="processingApplication === application.id"
+                      class="flex-1 text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      否决
+                      {{ processingApplication === application.id ? '处理中...' : '否决' }}
                     </button>
                   </div>
                 </div>
@@ -109,10 +116,15 @@ import ApplySection from '@/components/ApplySection.vue'
 import SimilarProjects from '@/components/SimilarProjects.vue'
 import { useProjectStore } from '@/stores/project'
 import { useUserStore } from '@/stores/user'
+import { useToast } from 'vue-toastification'
+import { projectApi } from '@/api/project'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const route = useRoute()
 const projectStore = useProjectStore()
 const userStore = useUserStore()
+const toast = useToast()
 
 const isManager = computed(() => {
   return (
@@ -183,16 +195,69 @@ const pendingApplications = ref([
   }
 ])
 
+const processingApplication = ref<number | null>(null)
+
 const sendMessage = (userId: number) => {
-  // TODO: 实现私信功能
-  console.log('发送私信给用户:', userId)
-  alert('私信功能开发中...')
+  router.push(`/messages?userId=${userId}`)
 }
 
-const handleApplication = (applicationId: number, action: 'accept' | 'reject') => {
-  // TODO: 实现申请处理功能
-  console.log('处理申请:', applicationId, action)
-  alert(`${action === 'accept' ? '同意' : '否决'}申请功能开发中...`)
+const handleApplication = async (applicationId: number, action: 'accept' | 'reject') => {
+  processingApplication.value = applicationId
+  try {
+    if (action === 'accept') {
+      // TODO: 调用API处理申请
+      // const response = await projectApi.handleApplication(projectId, applicationId, action)
+      
+      // 模拟API调用延迟
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // 模拟成功响应
+      const application = pendingApplications.value.find(app => app.id === applicationId)
+      if (application) {
+        // 将申请移动到已加入成员
+        const newMember = {
+          id: application.applicant.id,
+          username: application.applicant.username,
+          jobTitle: application.job.title
+        }
+        joinedMembers.value.push(newMember)
+        
+        // 从待处理申请中移除
+        pendingApplications.value = pendingApplications.value.filter(app => app.id !== applicationId)
+        
+        toast.success('申请已同意，成员已加入项目')
+      }
+    } else if (action === 'reject') {
+      // TODO: 调用API处理申请
+      // const response = await projectApi.handleApplication(projectId, applicationId, action)
+      
+      // 模拟API调用延迟
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // 模拟成功响应
+      const application = pendingApplications.value.find(app => app.id === applicationId)
+      if (application) {
+        // 显示删除动画
+        const applicationElement = document.querySelector(`[data-application-id="${applicationId}"]`)
+        if (applicationElement) {
+          applicationElement.classList.add('animate-slide-out')
+          setTimeout(() => {
+            pendingApplications.value = pendingApplications.value.filter(app => app.id !== applicationId)
+            toast.info('申请已拒绝')
+          }, 300)
+        } else {
+          // 如果找不到元素，直接移除
+          pendingApplications.value = pendingApplications.value.filter(app => app.id !== applicationId)
+          toast.info('申请已拒绝')
+        }
+      }
+    }
+  } catch (error) {
+    console.error('处理申请失败:', error)
+    toast.error('操作失败，请稍后重试')
+  } finally {
+    processingApplication.value = null
+  }
 }
 
 const handleSelectJob = (jobId: string|number) => {
@@ -205,10 +270,42 @@ const handleSelectJob = (jobId: string|number) => {
   }, 100)
 }
 
+const fetchProjectMembers = async (projectId: number) => {
+  const res = await projectApi.getProjectMembers(projectId)
+  return res
+}
+
 onMounted(async () => {
   const projectId = parseInt(route.params.id as string)
   if (projectId) {
     await projectStore.fetchProjectById(projectId)
+    const memberApplications = await fetchProjectMembers(projectId)
+    let tempAccepted = []
+    let tempPending = []
+    for (const member of memberApplications) {
+      if (member.status === 'accepted') {
+        tempAccepted.push({
+          id: member.applicant_id,
+          username: member.applicant_name,
+          jobTitle: member.job_title,
+        })
+      } else {
+        tempPending.push({
+          id: member.id,
+          applicant: {
+            id: member.applicant_id,
+            username: member.applicant_name,
+          },
+          job: {
+            id: member.job_id,
+            title: member.job_title,
+          },
+          note: member.note,
+        })
+      }
+    }
+    joinedMembers.value = tempAccepted
+    pendingApplications.value = tempPending
   }
 })
 

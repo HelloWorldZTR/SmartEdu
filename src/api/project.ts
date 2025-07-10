@@ -1,5 +1,5 @@
 import { apiClient } from './index'
-import type { Project, Application, PaginatedResponse, ApiResponse } from '@/types'
+import type { Project, Application, PaginatedResponse, ApiResponse, ProjectMember } from '@/types'
 
 export const projectApi = {
   // 项目列表
@@ -57,6 +57,10 @@ export const projectApi = {
   // 获取项目申请
   getProjectApplications: (projectId: number) =>
     apiClient.get<Application[]>(`/projects/${projectId}/applications`),
+
+  // 获取项目成员
+  getProjectMembers: (projectId: number) =>
+    apiClient.get<ProjectMember[]>(`/projects/${projectId}/members`),
 
   // 处理申请
   handleApplication: (

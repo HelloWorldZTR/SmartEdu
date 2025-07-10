@@ -38,6 +38,32 @@ class ProjectDetailView(generics.RetrieveUpdateDestroyAPIView):
         return [permissions.AllowAny()]
 
 
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+class ProjectMemberView(APIView):
+    """
+    获取项目成员（申请列表），包含申请id、申请人名字、申请岗位、申请状态、申请描述
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, project_id):
+        applications = Application.objects.filter(project_id=project_id)
+        data = []
+        for app in applications:
+            data.append({
+                "id": app.id,
+                "applicant_name": app.applicant.username if app.applicant else "",
+                "applicant_id": app.applicant.id if app.applicant else "",
+                "job_id": app.job.id if app.job else "",
+                "job_title": app.job.title if app.job else "",
+                "status": app.status,
+                "note": app.note,
+            })
+        return Response(data)
+
+
 class JobApplyView(APIView):
     """申请岗位"""
     permission_classes = [permissions.IsAuthenticated]

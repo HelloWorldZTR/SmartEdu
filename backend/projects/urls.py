@@ -12,7 +12,8 @@ urlpatterns = [
     # 项目申请管理
     path('projects/<int:project_id>/applications', views.ProjectApplicationsView.as_view(), name='project-applications'),
     path('projects/<int:project_id>/applications/<int:application_id>', views.ApplicationHandleView.as_view(), name='application-handle'),
-    
+    path('projects/<int:project_id>/members', views.ProjectMemberView.as_view(), name='project-members'),
+
     # 项目收藏
     path('projects/<int:project_id>/favorite', views.ProjectFavoriteView.as_view(), name='project-favorite'),
     path('projects/favorites', views.FavoriteProjectsView.as_view(), name='favorite-projects'),
